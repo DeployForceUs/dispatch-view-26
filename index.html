@@ -99,37 +99,65 @@ function showPrices(){
 }
 function priceDetails(e){el("title").textContent="Price History · "+e.key;const pts=e.pts.filter(p=>Number.isFinite(p.price)&&p.at);const min=Math.min(...pts.map(p=>p.price)),max=Math.max(...pts.map(p=>p.price));const w=330,h=130,pad=12,span=Math.max(0.01,max-min);const coords=pts.map((p,i)=>[(pad+(w-2*pad)*(pts.length===1?.5:i/(pts.length-1))),h-pad-(h-2*pad)*(p.price-min)/span]);const poly=coords.map(v=>v.join(",")).join(" ");const svg='<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Observed price chart" style="width:100%;max-height:170px;background:#092235;border-radius:12px"><polyline points="'+poly+'" fill="none" stroke="#8bf1df" stroke-width="3"/>'+coords.map(v=>'<circle cx="'+v[0]+'" cy="'+v[1]+'" r="3" fill="#8bf1df"/>').join("")+'</svg>';const rows=pts.map((p,i)=>'<tr><td>'+new Date(p.at).toLocaleString()+'</td><td>'+cash(p.price)+'</td><td>'+(i===0?"First observed":(p.price-pts[i-1].price>=0?"+":"")+cash(p.price-pts[i-1].price))+'</td></tr>').join("");el("detail").innerHTML=svg+'<p>First observed: '+cash(pts[0].price)+' · Latest: '+cash(pts[pts.length-1].price)+'</p><div style="overflow:auto;max-height:38vh"><table style="width:100%;font-size:12px;text-align:left"><thead><tr><th>Observed at</th><th>Price</th><th>Change</th></tr></thead><tbody>'+rows+'</tbody></table></div><small>Times reflect when Watcher observed prices, not when Roadie changed them. Disappearance does not prove acceptance.</small>';el("modal").classList.add("open")}
 
+let comboDay="all",comboTier="all";
+const comboCorridors={
+ "south":["homestead","florida city","cutler bay","palmetto bay","key largo","tavernier","islamorada"],
+ "miami":["miami","miami beach","hialeah","doral","coral gables","key biscayne","miami gardens","north miami","aventura"],
+ "broward":["hollywood","dania beach","fort lauderdale","lauderhill","pembroke pines","plantation","sunrise","pompano beach","coral springs","deerfield beach","miramar","davie"],
+ "palm":["boca raton","delray beach","boynton beach","lake worth","west palm beach","palm beach gardens","jupiter","palm city","riviera beach"]
+};
+function comboArea(city){const c=String(city||"").trim().toLowerCase();if(!c||c==="unknown"||c==="неизвестно")return null;for(const [area,names] of Object.entries(comboCorridors))if(names.some(n=>c===n||c.startsWith(n+" ")))return area;return null}
+function comboDate(g){const d=Date.parse(g.first_seen||"");return Number.isFinite(d)?d:null}
+function comboLocalDay(t){return new Date(t).toLocaleDateString("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"})}
 function showCombos(){
  const panel=el("combo-panel");panel.replaceChildren();
- const all=(payload?.history||[]).filter(g=>Number(g.hour)>=24&&Number(g.price)>0&&Number.isFinite(Date.parse(g.first_seen)));
- const pairs=[];
+ const all=(payload?.history||[]).filter(g=>Number(g.hour)>=24&&Number(g.price)>0&&comboDate(g)!==null);
+ const days=[...new Set(all.map(g=>comboLocalDay(comboDate(g))))].sort().reverse();
+ if(comboDay!=="all"&&!days.includes(comboDay))comboDay="all";
+ const controls=document.createElement("div");controls.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px";
+ const select=document.createElement("select");select.style.cssText="background:#102538;color:#eaf4ff;border:1px solid #38596a;border-radius:10px;padding:10px;font-size:14px";
+ for(const d of ["all",...days]){const o=document.createElement("option");o.value=d;o.textContent=d==="all"?"All dates":d;select.appendChild(o)}
+ select.value=comboDay;select.onchange=()=>{comboDay=select.value;showCombos()};controls.appendChild(select);
+ for(const [value,label] of [["all","All"],["corridor","Same corridor"],["adjacent","Nearby corridors"]]){const b=document.createElement("button");b.textContent=label;b.style.cssText="border:1px solid #38596a;border-radius:10px;padding:9px;background:"+(comboTier===value?"#8bf1df":"#102538")+";color:"+(comboTier===value?"#073238":"#c6dce5");b.onclick=()=>{comboTier=value;showCombos()};controls.appendChild(b)}
+ panel.appendChild(controls);
+ const order=["south","miami","broward","palm"],pairs=[];
  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){
-  const x=all[i],y=all[j],tx=Date.parse(x.first_seen),ty=Date.parse(y.first_seen);
-  if(Math.abs(tx-ty)>40*60000||new Date(tx).toDateString()!==new Date(ty).toDateString())continue;
+  const x=all[i],y=all[j],tx=comboDate(x),ty=comboDate(y);
+  if(Math.abs(tx-ty)>40*60000||comboLocalDay(tx)!==comboLocalDay(ty))continue;
+  if(comboDay!=="all"&&comboLocalDay(tx)!==comboDay)continue;
   const a=tx<=ty?x:y,b=tx<=ty?y:x;
-  pairs.push({a,b,minutes:Math.round(Math.abs(tx-ty)/60000),total:Number(a.price)+Number(b.price)});
+  const ca=comboArea(a.city),cb=comboArea(b.city);
+  const distance=ca&&cb?Math.abs(order.indexOf(ca)-order.indexOf(cb)):null;
+  const tier=distance===0?"corridor":distance===1?"adjacent":"unverified";
+  if(comboTier==="corridor"&&tier!=="corridor")continue;
+  if(comboTier==="adjacent"&&tier==="unverified")continue;
+  pairs.push({a,b,minutes:Math.round(Math.abs(tx-ty)/60000),total:Number(a.price)+Number(b.price),tier,ca,cb});
  }
- pairs.sort((a,b)=>b.total-a.total);
+ pairs.sort((a,b)=>({corridor:0,adjacent:1,unverified:2}[a.tier]-{corridor:0,adjacent:1,unverified:2}[b.tier])||b.total-a.total);
  el("hero-label").textContent="Combo Opportunities · historical simulation";
  el("total-count").textContent=pairs.length+" candidate pairs";
- el("max-price").textContent=pairs.length?cash(pairs[0].total):"—";
+ el("max-price").textContent=pairs.length?cash(Math.max(...pairs.map(p=>p.total))):"—";
  el("max-hour").textContent="—";el("no-fit").textContent="—";el("count").textContent=pairs.length+" pairs";
  const note=document.createElement("p");note.className="combo-note";
- note.textContent="THEORETICAL ONLY · Both gigs ≥ $24/hr · First seen within 40 minutes on the same day. No verified pickup locations, route compatibility, cargo capacity, Roadie availability or approval. Staging reference: Topgolf Miami–Doral; proximity cannot yet be verified.";
+ note.textContent="SIMULATION · Both gigs ≥ $24/hr; first seen ≤ 40 min apart on the same Eastern-time date. Same/Nearby corridor describes DESTINATION CITY ONLY, not verified pickup, actual route overlap, simultaneous availability, vehicle capacity or Roadie approval. Historical first/last seen do not prove continuous availability. Topgolf Miami–Doral is a staging reference, not a verified pickup.";
  panel.appendChild(note);
+ const summary=document.createElement("p");summary.className="combo-note";
+ summary.textContent=pairs.filter(p=>p.tier==="corridor").length+" same corridor · "+pairs.filter(p=>p.tier==="adjacent").length+" nearby corridors · "+pairs.filter(p=>p.tier==="unverified").length+" unverified";
+ panel.appendChild(summary);
  for(const p of pairs.slice(0,100)){
   const card=document.createElement("article");card.className="combo-card";
   const title=document.createElement("div");title.className="combo-title";title.textContent=cash(p.total)+" · "+p.minutes+" min apart";card.appendChild(title);
+  const grade=document.createElement("div");grade.className="combo-note";grade.textContent=(p.tier==="corridor"?"Same destination corridor":p.tier==="adjacent"?"Adjacent destination corridors":"Geography unverified") +" · "+comboLocalDay(comboDate(p.a));card.appendChild(grade);
   for(const [g,label] of [[p.a,"ANCHOR"],[p.b,"ADD-ON"]]){
    const line=document.createElement("div");line.className="combo-line";
    line.textContent=label+" "+g.key+" · "+cash(g.price)+" · "+cash(g.hour)+"/hr · → "+(g.city||"Unknown")+" · "+(g.deliveries||"?")+" deliveries · "+(g.fit==="no"?"NOT A FIT":"FIT unknown");
    card.appendChild(line);
   }
   const times=document.createElement("div");times.className="combo-note";
-  times.textContent=new Date(p.a.first_seen).toLocaleString()+" → "+new Date(p.b.first_seen).toLocaleString()+" · "+(p.a.total_weight??"?")+" + "+(p.b.total_weight??"?")+" lbs";
-  card.appendChild(times);panel.appendChild(card);
+  times.textContent=new Date(p.a.first_seen).toLocaleString()+" → "+new Date(p.b.first_seen).toLocaleString()+" · "+(p.a.total_weight??"?")+" + "+(p.b.total_weight??"?")+" lbs";card.appendChild(times);panel.appendChild(card);
  }
- if(pairs.length>100){const more=document.createElement("p");more.className="combo-note";more.textContent="Showing top 100 of "+pairs.length+" theoretical pairs.";panel.appendChild(more)}
+ if(!pairs.length){const empty=document.createElement("div");empty.className="empty";empty.textContent="No theoretical pairs for these filters.";panel.appendChild(empty)}
+ if(pairs.length>100){const more=document.createElement("p");more.className="combo-note";more.textContent="Showing first 100 of "+pairs.length+" theoretical pairs.";panel.appendChild(more)}
 }
 
 el("tab-now").addEventListener("click",()=>setMode("now"));el("tab-history").addEventListener("click",()=>setMode("history"));el("tab-prices").addEventListener("click",()=>setMode("prices"));el("tab-combos").addEventListener("click",()=>setMode("combos"));

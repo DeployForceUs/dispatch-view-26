@@ -167,9 +167,7 @@ function showCombos(){
    const city=document.createElement("span");city.className="combo-city";city.textContent="↗ "+(g.city||"Unknown");
    bottom.append(kind,city);row.appendChild(bottom);card.appendChild(row);
   }
-  const footer=document.createElement("div");footer.className="combo-bottom combo-note";
-  const grade=document.createElement("span");grade.textContent=p.tier==="corridor"?"Same corridor":p.tier==="adjacent"?"Nearby corridors":"Geography unverified";
-  const sim=document.createElement("span");sim.textContent="Simulation";footer.append(grade,sim);card.appendChild(footer);panel.appendChild(card);
+  panel.appendChild(card);
  }
  if(!pairs.length){const empty=document.createElement("div");empty.className="empty";empty.textContent="No theoretical pairs for these filters.";panel.appendChild(empty)}
  if(pairs.length>100){const more=document.createElement("p");more.className="combo-note";more.textContent="Showing first 100 of "+pairs.length+" theoretical pairs.";panel.appendChild(more)}

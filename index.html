@@ -377,7 +377,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#102b3e;color:#e7f2f7;border:1px solid #3d6a85;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:99999;transition:transform .25s ease,opacity .25s ease;opacity:0;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.2.0 · Mirrors Mac <span id="version-sha">7893b65</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.3.0 · Mirrors Mac <span id="version-sha">fc3499c</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
@@ -464,6 +464,42 @@ const roadieCargo=g=>{
   }
   return {weight:weightKnown?weight:null,maxItemWeight,maxItemLength,volume:volumeKnown?volumeIn/1728:null};
 };
+const roadieItemsGroundTruth=g=>{
+  const gigs=Array.isArray(g.gigs)?g.gigs:[];
+  if(!gigs.length){
+    const w=num(g.items_weight);
+    const v=num(g.items_volume);
+    const wInc=g.items_weight_incomplete===true;
+    const vInc=g.items_volume_incomplete===true;
+    if(w==null&&v==null)return {itemsWeight:null,itemsVolume:null,weightIncomplete:false,volumeIncomplete:false,hasItems:false};
+    return {itemsWeight:w,itemsVolume:v,weightIncomplete:wInc,volumeIncomplete:vInc,hasItems:true};
+  }
+  let totalWeight=0.0,totalVolCuIn=0.0,hasAnyItems=false,weightIncomplete=false,volumeIncomplete=false;
+  for(const gig of gigs){
+    if(!gig||typeof gig!=='object'){weightIncomplete=true;volumeIncomplete=true;continue}
+    const items=Array.isArray(gig.items)?gig.items:[];
+    if(!items.length){weightIncomplete=true;volumeIncomplete=true;continue}
+    hasAnyItems=true;
+    for(const it of items){
+      if(!it||typeof it!=='object'){weightIncomplete=true;volumeIncomplete=true;continue}
+      const q=num(it.quantity);
+      const w=num(it.weight);
+      const l=num(it.length),wi=num(it.width),h=num(it.height);
+      if(q==null||q<=0){weightIncomplete=true;volumeIncomplete=true;continue}
+      if(w==null)weightIncomplete=true;
+      else totalWeight+=w*q;
+      if(l==null||wi==null||h==null)volumeIncomplete=true;
+      else totalVolCuIn+=(l*wi*h*q);
+    }
+  }
+  if(!hasAnyItems){
+    const w=num(g.items_weight);
+    const v=num(g.items_volume);
+    if(w!=null||v!=null)return {itemsWeight:w,itemsVolume:v,weightIncomplete:g.items_weight_incomplete===true,volumeIncomplete:g.items_volume_incomplete===true,hasItems:true};
+    return {itemsWeight:null,itemsVolume:null,weightIncomplete:false,volumeIncomplete:false,hasItems:false};
+  }
+  return {itemsWeight:totalWeight,itemsVolume:totalVolCuIn/1728.0,weightIncomplete,volumeIncomplete,hasItems:true};
+};
 const bearingArrow=g=>{const b=num(g.bearing);return b!=null&&b>=0&&b<360?'<svg viewBox="0 0 20 36" width="0.95em" height="1.7em" role="img" aria-label="Direction '+Math.round(b)+' degrees" style="display:inline-block;vertical-align:middle;margin-left:5px;overflow:visible;transform:rotate('+b+'deg)" xmlns="http://www.w3.org/2000/svg"><title>Direction to final stop: '+Math.round(b)+'°</title><path d="M10 34 V2 M2 10 L10 2 L18 10" fill="none" stroke="#28b86c" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':''};
 const roadieDeliveryPoints=g=>{
   const stops=Array.isArray(g.stops)?g.stops:null;
@@ -488,12 +524,17 @@ const normalize=g=>{
   const calculated=drive!=null&&hasStopTimes?drive+stops.reduce((n,s)=>n+num(s.estimated_stop_time),0):null;
   const minutes=calculated??num(g.total_route_minutes??g.minutes??g.estimated_drive_time??g.estimated_minutes);
   const hour=calculated!=null?(price!=null&&minutes>0?price*60/minutes:null):(num(g.hour)??(price!=null&&minutes>0?price*60/minutes:null));
-  const cargo=roadieCargo(g),deliveryPoints=roadieDeliveryPoints(g);
+  const cargo=roadieCargo(g),deliveryPoints=roadieDeliveryPoints(g),itemsGT=roadieItemsGroundTruth(g);
   return {...g,id,price,minutes,miles,hour,bearing:num(g.bearing),
     city:g.city??g.destination_city??g.destination??roadieCity(g),
     pickup_name:g.pickup_name??g.pickupName??null,
     volume:cargo.volume??num(g.volume_ft3??g.total_volume_ft3),
     weight:cargo.weight??num(g.total_weight??g.weight_lb??g.weight),
+    items_weight:itemsGT.itemsWeight,
+    items_volume:itemsGT.itemsVolume,
+    items_weight_incomplete:itemsGT.weightIncomplete,
+    items_volume_incomplete:itemsGT.volumeIncomplete,
+    has_items:itemsGT.hasItems,
     max_item_weight:cargo.maxItemWeight??num(g.max_item_weight),
     max_item_length_in:cargo.maxItemLength??num(g.max_item_length_in),
     deliveries:num(g.deliveries)??(Array.isArray(g.gigs)?g.gigs.length:null),
@@ -601,6 +642,26 @@ const compactCargo=n=>{
   return String(Number(v.toFixed(2)));
 };
 const cargoPair=(total,max,unit='')=>compactCargo(total)+' / '+compactCargo(max)+(max==null?'':unit);
+const fmtItemsWeight=g=>{
+  if(!g.has_items&&g.items_weight==null)return '—';
+  const w=num(g.items_weight);
+  if(g.items_weight_incomplete){
+    return w!=null&&w>0
+      ?'<span class="down" title="Incomplete item data: one or more items missing weight or quantity">~'+w.toFixed(2)+'*</span>'
+      :'<span class="small" title="Incomplete item data: missing weight or quantity">Incomplete</span>';
+  }
+  return w!=null?w.toFixed(2):'—';
+};
+const fmtItemsVolume=g=>{
+  if(!g.has_items&&g.items_volume==null)return '—';
+  const v=num(g.items_volume);
+  if(g.items_volume_incomplete){
+    return v!=null&&v>0
+      ?'<span class="down" title="Incomplete item data: one or more items missing dimensions or quantity">~'+v.toFixed(3)+'*</span>'
+      :'<span class="small" title="Incomplete item data: missing dimensions or quantity">Incomplete</span>';
+  }
+  return v!=null?v.toFixed(3):'—';
+};
 const COLS=[
   ['price','Payout',g=>cash(g.price),'money'],
   ['hour','$/hour',g=>wholeCash(g.hour),'rate'],
@@ -608,7 +669,9 @@ const COLS=[
   ['minutes','Time',g=>fmtTime(g.minutes),''],
   ['miles','Miles',g=>whole(g.miles)+bearingArrow(g),''],
   ['volume','Volume ft³ / max length',g=>cargoPair(g.volume,g.max_item_length_in,'″'),''],
+  ['items_volume','Items Volume (ft³)',g=>fmtItemsVolume(g),''],
   ['weight','Weight lb (total / max)',g=>cargoPair(g.weight,g.max_item_weight),''],
+  ['items_weight','Items Weight (lb)',g=>fmtItemsWeight(g),''],
   ['city','Destination',g=>esc(str(g.city)),''],
   ['first','First seen',g=>esc(g.first_seen?new Date(g.first_seen).toLocaleTimeString():'—'),''],
   ['age','Observed span',g=>age(g.first_seen,g.last_seen),''],
@@ -1232,15 +1295,15 @@ connect();render();
    VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
    ========================================================================= */
 const VIEWER_BUILD = {
-  viewerVersion: 'v1.1.0-ghpages',
-  mirroredRelease: 'v1.1.0 · 7976fa9',
-  mirroredSha: '7976fa9922d08774987e4359a34e9ccfd0d01106',
-  mirroredShortSha: '7976fa9',
-  deployTimeUtc: '2026-10-27T19:30:00Z',
+  viewerVersion: 'v1.3.0-ghpages',
+  mirroredRelease: 'v1.3.0 · fc3499c',
+  mirroredSha: 'fc3499cbb4e540bc681df2ac3ce39845fe0bbb91',
+  mirroredShortSha: 'fc3499c',
+  deployTimeUtc: '2026-10-28T06:05:00Z',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.1.0)'
+  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.3.0)'
 };
 
 let lastScanId = null;
@@ -1422,11 +1485,11 @@ setInterval(updateDiagnosticsLive, 1000);
     <div class="diag-body">
       <div class="diag-section-title">Build & Mirrored Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.2.0-ghpages</b></div>
-        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">7893b65 (7893b65b1713ad64ba26170ef052df58323f6fdd)</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-27T22:20:00Z</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.3.0-ghpages</b></div>
+        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">fc3499c (fc3499cbb4e540bc681df2ac3ce39845fe0bbb91)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T06:05:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.2.0)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.3.0)</b></div>
         <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
       </div>
 

@@ -774,8 +774,9 @@ function ingest(message){
       const old=historic.get(g.id);
       historic.set(g.id,{...old,...g,
         pickup_name:g.pickup_name??old?.pickup_name??null,
-        first_seen:old?.first_seen??g.first_seen??at,
-        first_price:old?.first_price??num(g.first_price)??g.price,
+        first_seen:g.first_seen??old?.first_seen??at,
+        first_price:num(g.first_price)??old?.first_price??g.price,
+        price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
         last_seen:at});
     }
     liveIds=demo?new Set():nextIds;
@@ -793,8 +794,12 @@ function ingest(message){
   if(type==='upsert'&&message.gig){
     const g=normalize(message.gig);if(!g.id)return;
     const old=historic.get(g.id),at=message.at??new Date().toISOString();
-    historic.set(g.id,{...old,...g,pickup_name:g.pickup_name??old?.pickup_name??null,first_seen:old?.first_seen??g.first_seen??at,
-      first_price:old?.first_price??g.price,last_seen:at});
+    historic.set(g.id,{...old,...g,
+      pickup_name:g.pickup_name??old?.pickup_name??null,
+      first_seen:g.first_seen??old?.first_seen??at,
+      first_price:num(g.first_price)??old?.first_price??g.price,
+      price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
+      last_seen:at});
     liveIds.add(g.id);notifyLiveChanges();render();return;
   }
   if(type==='remove'&&message.id!=null){liveIds.delete(String(message.id));notifyLiveChanges();render()}

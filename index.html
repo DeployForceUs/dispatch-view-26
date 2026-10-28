@@ -377,12 +377,16 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#102b3e;color:#e7f2f7;border:1px solid #3d6a85;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:99999;transition:transform .25s ease,opacity .25s ease;opacity:0;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.3.0 · Mirrors Mac <span id="version-sha">fc3499c</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.0 · Mirrors Mac <span id="version-sha">d1fb5e8</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
 <option value="hour">$/hour ↓</option>
 <option value="hour_asc">$/hour ↑</option>
+<option value="total_time">Total Time ↓</option>
+<option value="total_time_asc">Total Time ↑</option>
+<option value="driving_time">Drive Time ↓</option>
+<option value="driving_time_asc">Drive Time ↑</option>
 <option value="observed_desc">Observed Time ↓</option>
 <option value="observed_asc">Observed Time ↑</option>
 <option value="newest">Newest first</option>
@@ -393,6 +397,10 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 <option value="price_asc">Payout ↑</option>
 <option value="hour">$/hour ↓</option>
 <option value="hour_asc">$/hour ↑</option>
+<option value="total_time">Total Time ↓</option>
+<option value="total_time_asc">Total Time ↑</option>
+<option value="driving_time">Drive Time ↓</option>
+<option value="driving_time_asc">Drive Time ↑</option>
 <option value="observed_desc">Observed Time ↓</option>
 <option value="observed_asc">Observed Time ↑</option>
 <option value="newest">Newest first</option>
@@ -519,13 +527,40 @@ const roadieDeliveryPoints=g=>{
 };
 const normalize=g=>{
   const id=idOf(g),price=num(g.price??g.total_payout),miles=num(g.miles??g.estimated_distance??g.distance_miles);
-  const drive=num(g.estimated_drive_time),stops=Array.isArray(g.stops)?g.stops:null;
-  const hasStopTimes=stops&&stops.every(s=>s&&num(s.estimated_stop_time)!=null);
-  const calculated=drive!=null&&hasStopTimes?drive+stops.reduce((n,s)=>n+num(s.estimated_stop_time),0):null;
-  const minutes=calculated??num(g.total_route_minutes??g.minutes??g.estimated_drive_time??g.estimated_minutes);
-  const hour=calculated!=null?(price!=null&&minutes>0?price*60/minutes:null):(num(g.hour)??(price!=null&&minutes>0?price*60/minutes:null));
+  const drive=num(g.estimated_drive_time??g.driving_minutes??g.driving_time);
+  const total=num(g.total_route_minutes??g.total_time);
+  const stops=Array.isArray(g.stops)?g.stops:null;
+
+  let calculatedTotal=total;
+  if(calculatedTotal==null && drive!=null && stops && stops.every(s=>s&&num(s.estimated_stop_time)!=null)){
+    let dwell=0;
+    const seenPickups=new Set();
+    for(const s of stops){
+      const st=num(s.estimated_stop_time)||0;
+      const cat=String(s.category||'').toLowerCase();
+      const loc=s.location||{};
+      const locKey=loc.latitude+','+loc.longitude;
+      if(cat==='delivery'){
+        dwell+=st;
+      } else {
+        if(!seenPickups.has(locKey)){
+          dwell+=st;
+          seenPickups.add(locKey);
+        }
+      }
+    }
+    calculatedTotal=drive+dwell;
+  }
+  const totalMinutes=calculatedTotal??num(g.minutes??g.estimated_minutes);
+  const hour=price!=null&&totalMinutes>0?(price*60/totalMinutes):(num(g.hour)??(price!=null&&drive>0?price*60/drive:null));
   const cargo=roadieCargo(g),deliveryPoints=roadieDeliveryPoints(g),itemsGT=roadieItemsGroundTruth(g);
-  return {...g,id,price,minutes,miles,hour,bearing:num(g.bearing),
+  return {...g,id,price,
+    estimated_drive_time:drive,
+    driving_time:drive,
+    total_route_minutes:totalMinutes,
+    total_time:totalMinutes,
+    minutes:totalMinutes,
+    miles,hour,bearing:num(g.bearing),
     city:g.city??g.destination_city??g.destination??roadieCity(g),
     pickup_name:g.pickup_name??g.pickupName??null,
     volume:cargo.volume??num(g.volume_ft3??g.total_volume_ft3),
@@ -666,7 +701,8 @@ const COLS=[
   ['price','Payout',g=>cash(g.price),'money'],
   ['hour','$/hour',g=>wholeCash(g.hour),'rate'],
   ['pickup','Pickup Location',g=>esc(str(g.pickup_name)),''],
-  ['minutes','Time',g=>fmtTime(g.minutes),''],
+  ['driving_time','Drive Time',g=>fmtTime(g.estimated_drive_time??g.driving_time),''],
+  ['total_time','Total Time',g=>fmtTime(g.total_route_minutes??g.total_time??g.minutes),''],
   ['miles','Miles',g=>whole(g.miles)+bearingArrow(g),''],
   ['volume','Volume ft³ / max length',g=>cargoPair(g.volume,g.max_item_length_in,'″'),''],
   ['items_volume','Items Volume (ft³)',g=>fmtItemsVolume(g),''],
@@ -682,7 +718,15 @@ const COLS=[
 ];
 const DEFAULT_ORDER=COLS.map(c=>c[0]);
 function loadPrefs(){
-  try{const p=JSON.parse(localStorage.getItem('roadie_live_columns_v1'));if(p&&Array.isArray(p.order)&&Array.isArray(p.hidden))return {order:[...new Set([...p.order.filter(k=>DEFAULT_ORDER.includes(k)),...DEFAULT_ORDER])],hidden:p.hidden.filter(k=>DEFAULT_ORDER.includes(k))}}catch(e){}
+  try{
+    const p=JSON.parse(localStorage.getItem('roadie_live_columns_v1'));
+    if(p&&Array.isArray(p.order)&&Array.isArray(p.hidden)){
+      let order=p.order.map(k=>k==='minutes'?'total_time':k);
+      let hidden=p.hidden.map(k=>k==='minutes'?'total_time':k);
+      if(!order.includes('driving_time')) order.splice(order.indexOf('total_time'),0,'driving_time');
+      return {order:[...new Set([...order.filter(k=>DEFAULT_ORDER.includes(k)),...DEFAULT_ORDER])],hidden:hidden.filter(k=>DEFAULT_ORDER.includes(k))};
+    }
+  }catch(e){}
   return {order:[...DEFAULT_ORDER],hidden:[]};
 }
 let prefs=loadPrefs();
@@ -1295,15 +1339,15 @@ connect();render();
    VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
    ========================================================================= */
 const VIEWER_BUILD = {
-  viewerVersion: 'v1.3.0-ghpages',
-  mirroredRelease: 'v1.3.0 · fc3499c',
-  mirroredSha: 'fc3499cbb4e540bc681df2ac3ce39845fe0bbb91',
-  mirroredShortSha: 'fc3499c',
-  deployTimeUtc: '2026-10-28T06:05:00Z',
+  viewerVersion: 'v1.4.0-ghpages',
+  mirroredRelease: 'v1.4.0 · d1fb5e8',
+  mirroredSha: 'd1fb5e838181521a5aaee4f5b8064da537b62947',
+  mirroredShortSha: 'd1fb5e8',
+  deployTimeUtc: '2026-10-28T07:25:00Z',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.3.0)'
+  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.0)'
 };
 
 let lastScanId = null;
@@ -1485,11 +1529,11 @@ setInterval(updateDiagnosticsLive, 1000);
     <div class="diag-body">
       <div class="diag-section-title">Build & Mirrored Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.3.0-ghpages</b></div>
-        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">fc3499c (fc3499cbb4e540bc681df2ac3ce39845fe0bbb91)</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T06:05:00Z</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.0-ghpages</b></div>
+        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">d1fb5e8 (d1fb5e838181521a5aaee4f5b8064da537b62947)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T07:25:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.3.0)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.0)</b></div>
         <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
       </div>
 

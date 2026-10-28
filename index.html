@@ -336,6 +336,9 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 @media(prefers-reduced-motion:reduce){.telemetry-item.pulse .telemetry-lights i{animation:none}}
 @media(max-width:700px){.telemetry{justify-content:flex-start;gap:7px 13px}.telemetry-item{font-size:11px}}
 
+.btn-sound-test{padding:3px 6px;font-size:11px;background:#19384d;color:#a8d5ea;border:1px solid #365e75;border-radius:4px;cursor:pointer;white-space:nowrap}
+.btn-sound-test:hover{background:#24506c;color:#fff;border-color:#00e5ff}
+
 .header-identity{display:flex;align-items:center;gap:18px;min-width:0;flex-wrap:wrap}
 .header-identity #count{font-size:17px;color:#e7f2f7;white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.header-identity{gap:7px 14px;margin-bottom:7px}.header-identity h1{margin-bottom:0}.header-identity #count{font-size:14px}}
@@ -377,7 +380,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#102b3e;color:#e7f2f7;border:1px solid #3d6a85;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:99999;transition:transform .25s ease,opacity .25s ease;opacity:0;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.0 · Mirrors Mac <span id="version-sha">d1fb5e8</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.1 · Mirrors Mac <span id="version-sha">ed19908</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
@@ -406,7 +409,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 <option value="newest">Newest first</option>
 <option value="miles">Distance ↑</option>
 <option value="city">Destination A–Z</option>
-</select></label><label>Min payout $ <input id="min-payout" type="number" min="0" step="1" inputmode="decimal" placeholder="All" style="width:88px;background:#102b3e;color:white;border:1px solid #406171;border-radius:6px;padding:7px" aria-label="Minimum payout filter"></label><label>WebSocket <input id="endpoint" style="width:280px;background:#102b3e;color:white;border:1px solid #406171;padding:7px" aria-label="WebSocket endpoint"></label><button id="connect">Connect</button><label style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" id="sound-enabled"> Sound</label><button id="test-sound" type="button">Test Sound</button><div id="columns-wrap"><button id="columns-toggle" type="button">Columns ⚙</button><div id="columns-panel" aria-label="Column visibility"></div></div><span class="small">Green = new / price increase · Red = price decrease · Dim = no longer observed</span></nav>
+</select></label><label>Min payout $ <input id="min-payout" type="number" min="0" step="1" inputmode="decimal" placeholder="All" style="width:88px;background:#102b3e;color:white;border:1px solid #406171;border-radius:6px;padding:7px" aria-label="Minimum payout filter"></label><label>WebSocket <input id="endpoint" style="width:280px;background:#102b3e;color:white;border:1px solid #406171;padding:7px" aria-label="WebSocket endpoint"></label><button id="connect">Connect</button><label style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" id="sound-enabled"> Sound</label><div class="sound-test-group" style="display:inline-flex;align-items:center;gap:3px"><button id="test-sound" type="button" title="Test all four alerts in sequence">Test All</button><button id="test-sound-up" class="btn-sound-test" type="button" title="Audition New Order alert (High Ascending Chime)">↑ New</button><button id="test-sound-down" class="btn-sound-test" type="button" title="Audition Order Gone alert (Low Descending Drop)">↓ Gone</button><button id="test-sound-price-up" class="btn-sound-test" type="button" title="Audition Price Increase alert (Triple Sharp Beeps)">$$↑ Up</button><button id="test-sound-price-down" class="btn-sound-test" type="button" title="Audition Price Decrease alert (Soft Low Drop)">$$↓ Down</button></div><div id="columns-wrap"><button id="columns-toggle" type="button">Columns ⚙</button><div id="columns-panel" aria-label="Column visibility"></div></div><span class="small">Green = new / price increase · Red = price decrease · Dim = no longer observed</span></nav>
 
 <div id="day-nav" aria-label="History date navigation">
   <button id="day-prev" type="button">‹</button>
@@ -578,40 +581,167 @@ const normalize=g=>{
   };
 };
 
+// --- ROADIE RADAR SHARP AUDIO ALERTS & DISTINCT PRICE SIGNALS ---
 const soundToggle=$('sound-enabled');
 soundToggle.checked=localStorage.getItem('roadie-live-sound')==='on';
-let soundContext=null,soundTail=0,soundBaseline=null;
+let soundContext=null,soundTail=0,soundBaseline=null,isReconnecting=false;
+
+function getAudioContext(){
+  if(!soundContext){
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(AudioCtx)soundContext=new AudioCtx();
+  }
+  if(soundContext&&soundContext.state==='suspended'){
+    soundContext.resume().catch(()=>{});
+  }
+  return soundContext;
+}
+
 soundToggle.addEventListener('change',()=>{
  localStorage.setItem('roadie-live-sound',soundToggle.checked?'on':'off');
- if(soundToggle.checked){try{soundContext??=new (window.AudioContext||window.webkitAudioContext)();soundContext.resume()}catch(e){console.warn('Sound unavailable',e)}}
-});
-function soundEvent(kind){
- if(!soundToggle.checked)return;
- try{
-  soundContext??=new (window.AudioContext||window.webkitAudioContext)();
-  if(soundContext.state==='suspended')soundContext.resume();
-  const start=Math.max(soundContext.currentTime+.03,soundTail);
-  const tones=kind==='up'?[[880,0,.65],[1175,.66,.65]]:kind==='down'?[[880,0,.65],[550,.66,.65]]:[[1050,0,.36],[740,.39,.36],[1050,.78,.48]];
-  for(const [hz,offset,duration] of tones){
-   const osc=soundContext.createOscillator(),gain=soundContext.createGain(),t=start+offset;
-   osc.type='sine';osc.frequency.value=hz;osc.connect(gain);gain.connect(soundContext.destination);
-   gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.15,t+.03);
-   gain.gain.setValueAtTime(.15,t+duration-.09);gain.gain.linearRampToValueAtTime(0,t+duration);
-   osc.start(t);osc.stop(t+duration+.02);
-  }
-  soundTail=start+2.3;
- }catch(e){console.warn('Sound failed',e)}
-}
-function notifyLiveChanges(){
- const current=new Map([...liveIds].map(id=>[id,num(historic.get(id)?.price)]));
- if(soundBaseline!==null){
-  if(current.size>soundBaseline.size)soundEvent('up');
-  else if(current.size<soundBaseline.size)soundEvent('down');
-  if([...current].some(([id,price])=>soundBaseline.has(id)&&price!=null&&soundBaseline.get(id)!=null&&price!==soundBaseline.get(id)))soundEvent('price');
+ if(soundToggle.checked){
+   getAudioContext();
  }
- soundBaseline=current;
+});
+
+function playToneV2(ctx, freq, type, tStart, duration, peakGain) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'triangle';
+  osc.frequency.setValueAtTime(freq, tStart);
+  
+  // Instant 3 ms linear attack ramp for crisp harmonic presence
+  gain.gain.setValueAtTime(0.0001, tStart);
+  gain.gain.linearRampToValueAtTime(peakGain, tStart + 0.003);
+  
+  // Percussive sustain and snappy exponential decay
+  const sustainEnd = tStart + Math.max(0.010, duration * 0.60);
+  gain.gain.setValueAtTime(peakGain, sustainEnd);
+  gain.gain.exponentialRampToValueAtTime(0.0001, tStart + duration);
+  
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(tStart);
+  osc.stop(tStart + duration + 0.015);
 }
-$('test-sound').addEventListener('click',()=>{if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'))}soundEvent('up');soundEvent('down');soundEvent('price')});
+
+function scheduleAlert(ctx, kind, tStart) {
+  if (kind === 'up') {
+    // Restored High Ascending Chime: C6 (1046.50 Hz) -> G6 (1567.98 Hz), 260 ms
+    playToneV2(ctx, 1046.50, 'triangle', tStart, 0.110, 0.24);
+    playToneV2(ctx, 1567.98, 'triangle', tStart + 0.110, 0.150, 0.26);
+    return 0.260;
+  }
+  if (kind === 'down') {
+    // Restored Low Descending Drop: D5 (587.33 Hz) -> D4 (293.66 Hz), 260 ms
+    playToneV2(ctx, 587.33, 'triangle', tStart, 0.110, 0.26);
+    playToneV2(ctx, 293.66, 'triangle', tStart + 0.110, 0.150, 0.28);
+    return 0.260;
+  }
+  if (kind === 'price_up') {
+    // Distinct Price Increase: Three consecutive short, sharp beeps at exact same pitch (1760.00 Hz / A6)
+    // 48 ms beep + 35 ms pause = 83 ms period, crisp attack, snappy decay, total ~214 ms
+    const freq = 1760.00;
+    const beepDur = 0.048;
+    const step = 0.083;
+    playToneV2(ctx, freq, 'triangle', tStart, beepDur, 0.25);
+    playToneV2(ctx, freq, 'triangle', tStart + step, beepDur, 0.25);
+    playToneV2(ctx, freq, 'triangle', tStart + step * 2, beepDur, 0.25);
+    return step * 2 + beepDur; // ~0.214s
+  }
+  if (kind === 'price_down') {
+    // Price Decrease: Lower priority subtle drop (G5 -> D5), attenuated volume
+    playToneV2(ctx, 784.00, 'triangle', tStart, 0.075, 0.16);
+    playToneV2(ctx, 587.33, 'triangle', tStart + 0.115, 0.100, 0.16);
+    return 0.215;
+  }
+  return 0;
+}
+
+function playAlertSequence(kinds) {
+  if (!soundToggle.checked || !kinds || !kinds.length) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  
+  let t = Math.max(ctx.currentTime + 0.020, soundTail);
+  for (let i = 0; i < kinds.length; i++) {
+    const dur = scheduleAlert(ctx, kinds[i], t);
+    t += dur + 0.050; // brief gap between sequence components
+  }
+  soundTail = t + 0.030;
+}
+
+function soundEvent(kind) {
+  playAlertSequence([kind]);
+}
+
+function notifyLiveChanges() {
+  const current = new Map([...liveIds].map(id => [id, num(historic.get(id)?.price)]));
+  if (soundBaseline === null) {
+    soundBaseline = current;
+    return;
+  }
+  if (isReconnecting) {
+    soundBaseline = current;
+    isReconnecting = false;
+    return;
+  }
+
+  const sequence = [];
+  
+  // 1. Order count changes
+  if (current.size > soundBaseline.size) {
+    sequence.push('up');
+  } else if (current.size < soundBaseline.size) {
+    sequence.push('down');
+  }
+
+  // 2. Exact price changes on existing live orders
+  let hasPriceUp = false;
+  let hasPriceDown = false;
+  for (const [id, price] of current) {
+    if (soundBaseline.has(id) && price != null) {
+      const oldPrice = soundBaseline.get(id);
+      if (oldPrice != null) {
+        if (price > oldPrice) hasPriceUp = true;
+        else if (price < oldPrice) hasPriceDown = true;
+      }
+    }
+  }
+
+  if (hasPriceUp) {
+    sequence.push('price_up');
+  } else if (hasPriceDown) {
+    sequence.push('price_down');
+  }
+
+  if (sequence.length > 0) {
+    playAlertSequence(sequence);
+  }
+
+  soundBaseline = current;
+}
+
+$('test-sound')?.addEventListener('click', () => {
+  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+  playAlertSequence(['up', 'down', 'price_up', 'price_down']);
+});
+$('test-sound-up')?.addEventListener('click', () => {
+  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+  soundEvent('up');
+});
+$('test-sound-down')?.addEventListener('click', () => {
+  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+  soundEvent('down');
+});
+$('test-sound-price-up')?.addEventListener('click', () => {
+  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+  soundEvent('price_up');
+});
+$('test-sound-price-down')?.addEventListener('click', () => {
+  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+  soundEvent('price_down');
+});
 
 function ingest(message){
   if(!message||typeof message!=='object')return;
@@ -1178,7 +1308,7 @@ function connect(){
       $('status').textContent='Invalid message: '+err.message;
     }
   };
-  ws.onclose=()=>{if(socket!==ws)return;telemetryConnection('offline');$('status').textContent='Disconnected · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();reconnectTimer=setTimeout(connect,2000)};
+  ws.onclose=()=>{if(socket!==ws)return;isReconnecting=true;telemetryConnection('offline');$('status').textContent='Disconnected · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();reconnectTimer=setTimeout(connect,2000)};
   ws.onerror=()=>{if(socket===ws){telemetryConnection('offline');$('status').textContent='WebSocket error · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();}};
 }
 let latencyNonce=null,latencyStart=0;
@@ -1339,15 +1469,15 @@ connect();render();
    VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
    ========================================================================= */
 const VIEWER_BUILD = {
-  viewerVersion: 'v1.4.0-ghpages',
-  mirroredRelease: 'v1.4.0 · d1fb5e8',
-  mirroredSha: 'd1fb5e838181521a5aaee4f5b8064da537b62947',
-  mirroredShortSha: 'd1fb5e8',
-  deployTimeUtc: '2026-10-28T07:25:00Z',
+  viewerVersion: 'v1.4.1-ghpages',
+  mirroredRelease: 'v1.4.1 · ed19908',
+  mirroredSha: 'ed1990828bd3a94d4fe6f540540338f94445a366',
+  mirroredShortSha: 'ed19908',
+  deployTimeUtc: '2026-10-28T14:20:00Z',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.0)'
+  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.1)'
 };
 
 let lastScanId = null;
@@ -1529,11 +1659,11 @@ setInterval(updateDiagnosticsLive, 1000);
     <div class="diag-body">
       <div class="diag-section-title">Build & Mirrored Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.0-ghpages</b></div>
-        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">d1fb5e8 (d1fb5e838181521a5aaee4f5b8064da537b62947)</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T07:25:00Z</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.1-ghpages</b></div>
+        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">ed19908 (ed1990828bd3a94d4fe6f540540338f94445a366)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T14:20:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.0)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.1)</b></div>
         <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
       </div>
 

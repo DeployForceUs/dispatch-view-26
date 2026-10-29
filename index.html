@@ -381,6 +381,10 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 /* Keep the status button stable across label changes. */
 #now{width:112px;min-width:112px;max-width:112px;flex:0 0 112px;box-sizing:border-box;text-align:center;white-space:nowrap}
+#now.health-live{background:#00ff00;color:#071c10;border-color:#00ff00;letter-spacing:1.5px}
+#now.health-delay{background:#ffd600;color:#241c00;border-color:#ffd600}
+#now.health-offline{background:#ff3030;color:#fff;border-color:#ff3030}
+#now.health-waiting{background:#526575;color:#fff;border-color:#526575}
 </style></head><body>
 <header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.1 · Mirrors Mac <span id="version-sha">ed19908</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
@@ -1248,6 +1252,32 @@ function telemetryConnection(state){
   indicator.classList.toggle('offline',state==='offline');
   $('ws-label').textContent=state==='online'?'LIVE':state==='offline'?'OFFLINE':'CONNECTING';
 }
+// Read-only health light: independent of LIVE/HISTORY view selection.
+let healthLastScanId=null,healthLastProgressAt=0,healthSeenScan=false;
+function noteHealthScan(id){
+  if(id==null)return;
+  const value=String(id);
+  if(!healthSeenScan||value!==healthLastScanId){
+    healthLastScanId=value;healthLastProgressAt=Date.now();healthSeenScan=true;
+  }
+}
+function updateLiveHealth(){
+  const btn=$('now');
+  if(!btn)return;
+  const connected=socket&&socket.readyState===WebSocket.OPEN;
+  const elapsed=healthLastProgressAt?Date.now()-healthLastProgressAt:Infinity;
+  let state='waiting',label='WAITING',reason='Waiting for Bridge and first confirmed scan';
+  if(!connected){state='offline';label='OFFLINE';reason='Bridge WebSocket disconnected'}
+  else if(!healthSeenScan){state='waiting';label='WAITING';reason='Connected; awaiting scan_id'}
+  else if(elapsed>10000){state='offline';label='OFFLINE';reason='No new scan_id for '+Math.floor(elapsed/1000)+'s'}
+  else if(elapsed>3000){state='delay';label='DELAY';reason='Last new scan_id '+Math.floor(elapsed/1000)+'s ago'}
+  else {state='live';label='LIVE';reason='New scan_id '+Math.floor(elapsed/1000)+'s ago'}
+  btn.classList.remove('health-live','health-delay','health-offline','health-waiting');
+  btn.classList.add('health-'+state);
+  btn.textContent=label;
+  btn.title=reason+' · Click to show LIVE table';
+}
+setInterval(updateLiveHealth,500);
 function telemetryData(){
   const el=$('data-indicator');
   el.classList.remove('pulse');
@@ -1285,7 +1315,7 @@ function connect(){
         const at=msg.scan_at||new Date().toISOString();
         lastSearchAt=at;
         lastSearchTime=Date.parse(at)||Date.now();
-        if(msg.scan_id!=null)lastSearchScanId=msg.scan_id;
+        if(msg.scan_id!=null){lastSearchScanId=msg.scan_id;noteHealthScan(msg.scan_id)}
         for(const id of liveIds){
           const rec=historic.get(id);
           if(rec){rec.last_seen=at;}
@@ -1301,7 +1331,7 @@ function connect(){
       if(msg.type==='snapshot'||msg.type==='upsert'||msg.type==='remove'){
         telemetryData();
         lastSnapshot=Date.now();
-        if(msg.scan_id!=null)lastScanId=msg.scan_id;
+        if(msg.scan_id!=null){lastScanId=msg.scan_id;noteHealthScan(msg.scan_id)}
         if(msg.scan_at!=null)lastScanAt=msg.scan_at;
         const at=msg.scan_at||new Date().toISOString();
         lastSearchAt=msg.last_search_at||at;
@@ -1476,15 +1506,15 @@ connect();render();
    VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
    ========================================================================= */
 const VIEWER_BUILD = {
-  viewerVersion: 'v1.4.1-ghpages-patch1',
-  mirroredRelease: 'v1.4.1 · ed19908',
+  viewerVersion: 'v1.4.9-ghpages-health',
+  mirroredRelease: 'v1.4.9 health indicator (partial)',
   mirroredSha: 'ed1990828bd3a94d4fe6f540540338f94445a366',
   mirroredShortSha: 'ed19908',
   deployTimeUtc: '2026-10-28T14:20:00Z',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.1)'
+  role: 'Remote Read-Only Viewer (v1.4.9 health; remaining features pending)'
 };
 
 let lastScanId = null;
@@ -1670,7 +1700,7 @@ setInterval(updateDiagnosticsLive, 1000);
     <div class="diag-body">
       <div class="diag-section-title">Build & Mirrored Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.1-ghpages-patch1</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.9-ghpages-health</b></div>
         <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">ed19908 (ed1990828bd3a94d4fe6f540540338f94445a366)</b></div>
         <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T14:20:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>

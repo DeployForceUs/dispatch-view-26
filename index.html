@@ -386,7 +386,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #now.health-offline{background:#ff3030;color:#fff;border-color:#ff3030}
 #now.health-waiting{background:#526575;color:#fff;border-color:#526575}
 </style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.1 · Mirrors Mac <span id="version-sha">ed19908</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.9 · Health port (partial) <span id="version-sha">1c5bdb8</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
@@ -1704,7 +1704,7 @@ setInterval(updateDiagnosticsLive, 1000);
         <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">ed19908 (ed1990828bd3a94d4fe6f540540338f94445a366)</b></div>
         <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T14:20:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.4.1)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (v1.4.9 health only; other features not yet mirrored)</b></div>
         <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
       </div>
 

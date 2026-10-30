@@ -385,8 +385,8 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #now.health-delay{background:#ffd600;color:#241c00;border-color:#ffd600}
 #now.health-offline{background:#ff3030;color:#fff;border-color:#ff3030}
 #now.health-waiting{background:#526575;color:#fff;border-color:#526575}
-</style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.4.9 · Health port (partial) <span id="version-sha">1c5bdb8</span></button></div></header>
+</style><style>.fit-badge{display:inline-block;min-width:54px;padding:2px 6px;border:1px solid;border-radius:5px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2px}.fit-easy{color:#67f0a1;border-color:#2f9e68;background:#123d34}.fit-tight{color:#ffd166;border-color:#b88822;background:#3a2d0a}.fit-not{color:#ff8e8e;border-color:#b84d4d;background:#3d1717}</style></head><body>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.5.0 · Mirrors Mac <span id="version-sha">c22fc79</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
@@ -433,6 +433,14 @@ let lastSearchTime=0, lastSearchScanId=null, lastSearchAt=null;
 const whole=v=>Number.isFinite(num(v))?String(Math.round(Number(v))):'—', wholeCash=v=>Number.isFinite(num(v))?'$'+Math.round(Number(v)):'—';
 const num=v=>v==null||v===''?null:Number(v), cash=v=>Number.isFinite(num(v))?'$'+Number(v).toFixed(2):'—', str=v=>v==null||v===''?'—':String(v), esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtTime=m=>Number.isFinite(num(m))?Math.floor(Number(m)/60)+'h '+String(Math.round(Number(m)%60)).padStart(2,'0')+'m':'—';
+const fmtFit=g=>{
+  const status=String(g.fit_status||'').toUpperCase();
+  const estimated=g.is_estimated_fit?' (estimated)':'';
+  if(status==='EASY_FIT')return '<span class="fit-badge fit-easy" title="Easy fit'+estimated+'">FIT</span>';
+  if(status==='TIGHT_FIT')return '<span class="fit-badge fit-tight" title="Tight fit'+estimated+'">TIGHT</span>';
+  if(status==='NOT_FIT')return '<span class="fit-badge fit-not" title="Not a fit'+estimated+'">NOT FIT</span>';
+  return '<span class="small" title="Fit check unavailable">—</span>';
+};
 const age=(t,end)=>{if(!t)return '—';const start=Date.parse(t),stop=end?Date.parse(end):Date.now();if(!Number.isFinite(start)||!Number.isFinite(stop))return '—';const sec=Math.max(0,Math.floor((stop-start)/1000));return Math.floor(sec/60)+'m '+String(sec%60).padStart(2,'0')+'s'};
 const idOf=g=>String(g.id??g.gig_id??g.key??'');
 
@@ -842,6 +850,7 @@ const COLS=[
   ['price','Payout',g=>cash(g.price),'money'],
   ['hour','$/hour',g=>wholeCash(g.hour),'rate'],
   ['pickup','Pickup Location',g=>esc(str(g.pickup_name)),''],
+  ['fit','Fit',g=>fmtFit(g),''],
   ['driving_time','Drive Time',g=>fmtTime(g.estimated_drive_time??g.driving_time),''],
   ['total_time','Total Time',g=>fmtTime(g.total_route_minutes??g.total_time??g.minutes),''],
   ['miles','Miles',g=>whole(g.miles)+bearingArrow(g),''],
@@ -1103,7 +1112,7 @@ function renderMobileCards(arr){
     ].filter(Boolean).map(v=>v.includes('aria-label="Direction')?v:esc(v)).join('<span aria-hidden="true">·</span>');
     const change=delta==null||delta===0?'':('<div class="mobile-delta '+(delta>0?'up':'down')+'">'+(delta>0?'↑ +':'↓ −')+cash(Math.abs(delta))+' since first</div>');
     return '<div class="mobile-offer"><button type="button" class="mobile-card '+css+'" data-id="'+esc(g.id)+'">'+
-      '<div class="mobile-top"><span class="mobile-price">'+cash(g.price)+'</span><span class="mobile-hour">'+wholeCash(g.hour)+'/hr</span></div>'+
+      '<div class="mobile-top"><span class="mobile-price">'+cash(g.price)+'</span><span class="mobile-hour">'+wholeCash(g.hour)+'/hr</span>'+fmtFit(g)+'</div>'+
       '<div class="mobile-route">'+route+'</div><div class="mobile-meta">'+meta+'</div>'+change+'</button>'+submitButton(g)+'</div>';
   }).join('');
   root.querySelectorAll('.mobile-card').forEach(card=>{
@@ -1506,15 +1515,15 @@ connect();render();
    VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
    ========================================================================= */
 const VIEWER_BUILD = {
-  viewerVersion: 'v1.4.9-ghpages-health',
-  mirroredRelease: 'v1.4.9 health indicator (partial)',
-  mirroredSha: 'ed1990828bd3a94d4fe6f540540338f94445a366',
-  mirroredShortSha: 'ed19908',
-  deployTimeUtc: '2026-10-28T14:20:00Z',
+  viewerVersion: 'v1.5.0-ghpages',
+  mirroredRelease: 'v1.5.0 · c22fc79',
+  mirroredSha: 'c22fc79501cc400ac439eeb0c8e4d3bb4c3045f0',
+  mirroredShortSha: 'c22fc79',
+  deployTimeUtc: '2026-10-30T05:00:00Z',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (v1.4.9 health; remaining features pending)'
+  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.5.0)'
 };
 
 let lastScanId = null;
@@ -1700,11 +1709,11 @@ setInterval(updateDiagnosticsLive, 1000);
     <div class="diag-body">
       <div class="diag-section-title">Build & Mirrored Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.4.9-ghpages-health</b></div>
-        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">ed19908 (ed1990828bd3a94d4fe6f540540338f94445a366)</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-28T14:20:00Z</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.5.0-ghpages</b></div>
+        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">c22fc79 (c22fc79501cc400ac439eeb0c8e4d3bb4c3045f0)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-30T05:00:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (v1.4.9 health only; other features not yet mirrored)</b></div>
+        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.5.0)</b></div>
         <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
       </div>
 

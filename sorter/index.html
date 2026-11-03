@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#1062b8">
   <meta name="description" content="Roadie Package Sorter v2 — Mobile Route Lookup by Gig ID and House Number">
-  <title>Roadie Sorter v2.1 — Price Lookup</title>
+  <title>Roadie Sorter v2.2.0 — Live API Hotfix</title>
   <style>
     :root {
       --bg: #f3f6fa;
@@ -467,7 +467,7 @@
   <!-- Top Bar -->
   <header class="top-bar">
     <div class="title-group">
-      <h1>📦 Package Sorter <small>v2.1</small></h1>
+      <h1>📦 Package Sorter <small>v2.2.0</small></h1>
       <p class="subtitle">Find by Price &middot; Search House Number</p>
     </div>
     <div id="statusPill" class="status-pill">Ready</div>
@@ -649,7 +649,7 @@
     const custom = (localStorage.getItem(API_URL_STORAGE_KEY) || '').trim();
     if (custom) return custom.replace(/\/+$/, '');
     if (location.hostname.endsWith('github.io')) {
-      return null;
+      return 'https://dmitriis-mac-mini-24.tailf53f5f.ts.net';
     }
     return '';
   }
@@ -657,9 +657,9 @@
   function updateStatusForHostingMode() {
     if (location.hostname.endsWith('github.io')) {
       const customApi = (localStorage.getItem(API_URL_STORAGE_KEY) || '').trim();
-      statusPill.textContent = customApi ? 'Pages (API)' : 'Pages (Static)';
+      statusPill.textContent = customApi ? 'Pages (API) · v2.2.0' : 'Pages (API default) · v2.2.0';
     } else {
-      statusPill.textContent = 'Ready';
+      statusPill.textContent = 'Ready · v2.2.0';
     }
   }
 
@@ -1194,7 +1194,10 @@
     const list = document.getElementById('priceMatches');
     const button = document.getElementById('findPriceBtn');
     const searchStatus = document.getElementById('priceSearchStatus');
-    const setSearchStatus = message => {searchStatus.textContent=message;searchStatus.style.display=message?'block':'none';};
+    const setSearchStatus = message => {
+      searchStatus.textContent = message;
+      searchStatus.style.display = message ? 'block' : 'none';
+    };
     const amount = field.value.trim().replace(/^[$]/, '');
     hint.style.display = 'none';
     list.replaceChildren();
@@ -1205,101 +1208,61 @@
       return;
     }
     button.disabled = true;
-    setSearchStatus('Searching Gigs by price 
-
+    setSearchStatus('Searching Gigs by price $' + amount + '…');
     const apiBase = getApiBaseUrl();
     if (apiBase === null) {
-      showError('Price lookup requires live SQLite connection. Open local Sorter (http://10.0.0.242:5555) or configure API Base URL in ⚙️ Advanced Tools.');
+      showError('Live API is unavailable. Check API Base URL in Advanced Tools.');
       setSearchStatus('');
       button.disabled = false;
       return;
     }
-
     try {
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const headers = token ? {'X-Auth-Token': token} : {};
-      const response = await fetch(`${apiBase}/api/price?amount=` + encodeURIComponent(amount), {headers});
+      let token = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+      let response = await fetch(apiBase + '/api/price?amount=' + encodeURIComponent(amount), {
+        headers: token ? {'X-Auth-Token': token} : {}
+      });
       if (response.status === 401) {
-        showError('Authentication required. Use Gig ID once to enter your token.');
-        return;
+        const entered = prompt('Authentication required. Enter your Roadie Sorter token:');
+        if (!entered || !entered.trim()) {
+          showError('Authentication required. Enter token in Advanced Tools.');
+          setSearchStatus('Authentication required.');
+          return;
+        }
+        token = entered.trim();
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        tokenInput.value = token;
+        response = await fetch(apiBase + '/api/price?amount=' + encodeURIComponent(amount), {
+          headers: {'X-Auth-Token': token}
+        });
       }
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Price lookup failed');
+      if (!response.ok) throw new Error(data.error || 'HTTP ' + response.status);
       const matches = data.matches || [];
-      setSearchStatus(matches.length ? `Found ${matches.length} matching Gig${matches.length===1?'':'s'}.` : 'Search complete — no matching Gigs.');
-      if (matches.length === 0) {
-        showError('No matching Gigs today.');
+      setSearchStatus(matches.length ? 'Found ' + matches.length + ' matching Gig(s).' : 'Search complete — no matching Gigs.');
+      if (!matches.length) {
+        showError('No matching Gigs in the current search window.');
       } else if (matches.length === 1) {
         gigInput.value = matches[0].gig_id;
         setSearchStatus('Gig found. Loading details and preparing stops…');
         await loadGigFromApi();
         setSearchStatus('Gig lookup complete.');
-      } else if (!data.exact) {
-        hint.style.display = 'block';
-        field.focus();
       } else {
-        for (const match of matches) {
+        hint.style.display = 'block';
+        matches.forEach(match => {
           const item = document.createElement('button');
           item.type = 'button';
-          item.textContent = match.city + ' · ' + match.deliveries + ' Deliveries · Gig ' + match.gig_id;
+          item.textContent = match.city + ' · $' + match.price + ' · ' + match.deliveries + ' Deliveries · Gig ' + match.gig_id;
           item.style.cssText = 'display:block;width:100%;padding:10px;margin-top:6px;text-align:left';
           item.addEventListener('click', () => {
             gigInput.value = match.gig_id;
             loadGigFromApi();
           });
           list.appendChild(item);
-        }
+        });
       }
     } catch (error) {
       setSearchStatus('Search failed.');
-      showError(error.message);
-    } finally {
-      button.disabled = false;
-    }
-  }
- + amount + '…');
-
-    const apiBase = getApiBaseUrl();
-    if (apiBase === null) {
-      showError('Price lookup requires live SQLite connection. Open local Sorter (http://10.0.0.242:5555) or configure API Base URL in ⚙️ Advanced Tools.');
-      button.disabled = false;
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const headers = token ? {'X-Auth-Token': token} : {};
-      const response = await fetch(`${apiBase}/api/price?amount=` + encodeURIComponent(amount), {headers});
-      if (response.status === 401) {
-        showError('Authentication required. Use Gig ID once to enter your token.');
-        return;
-      }
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Price lookup failed');
-      const matches = data.matches || [];
-      if (matches.length === 0) {
-        showError('No matching Gigs today.');
-      } else if (matches.length === 1) {
-        gigInput.value = matches[0].gig_id;
-        await loadGigFromApi();
-      } else if (!data.exact) {
-        hint.style.display = 'block';
-        field.focus();
-      } else {
-        for (const match of matches) {
-          const item = document.createElement('button');
-          item.type = 'button';
-          item.textContent = match.city + ' · ' + match.deliveries + ' Deliveries · Gig ' + match.gig_id;
-          item.style.cssText = 'display:block;width:100%;padding:10px;margin-top:6px;text-align:left';
-          item.addEventListener('click', () => {
-            gigInput.value = match.gig_id;
-            loadGigFromApi();
-          });
-          list.appendChild(item);
-        }
-      }
-    } catch (error) {
-      showError(error.message);
+      showError('Price lookup failed: ' + error.message);
     } finally {
       button.disabled = false;
     }

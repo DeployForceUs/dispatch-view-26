@@ -488,6 +488,7 @@
       <input id="priceInput" type="text" inputmode="decimal" placeholder="e.g. 254" autocomplete="off">
       <button type="button" class="load-btn" id="findPriceBtn">Find Gig</button>
     </div>
+    <div id="priceSearchStatus" role="status" aria-live="polite" style="display:none;margin-top:8px;color:var(--text);font-size:13px"></div>
     <div id="priceHint" style="display:none;margin-top:8px">Enter Cents</div>
     <div id="priceMatches"></div>
   </section>
@@ -1192,15 +1193,71 @@
     const hint = document.getElementById('priceHint');
     const list = document.getElementById('priceMatches');
     const button = document.getElementById('findPriceBtn');
+    const searchStatus = document.getElementById('priceSearchStatus');
+    const setSearchStatus = message => {searchStatus.textContent=message;searchStatus.style.display=message?'block':'none';};
     const amount = field.value.trim().replace(/^[$]/, '');
     hint.style.display = 'none';
     list.replaceChildren();
     clearError();
+    setSearchStatus('');
     if (!/^[0-9]{1,6}([.][0-9]{1,2})?$/.test(amount)) {
       showError('Enter a valid price.');
       return;
     }
     button.disabled = true;
+    setSearchStatus('Searching Gigs by price 
+
+    const apiBase = getApiBaseUrl();
+    if (apiBase === null) {
+      showError('Price lookup requires live SQLite connection. Open local Sorter (http://10.0.0.242:5555) or configure API Base URL in ⚙️ Advanced Tools.');
+      setSearchStatus('');
+      button.disabled = false;
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const headers = token ? {'X-Auth-Token': token} : {};
+      const response = await fetch(`${apiBase}/api/price?amount=` + encodeURIComponent(amount), {headers});
+      if (response.status === 401) {
+        showError('Authentication required. Use Gig ID once to enter your token.');
+        return;
+      }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Price lookup failed');
+      const matches = data.matches || [];
+      setSearchStatus(matches.length ? `Found ${matches.length} matching Gig${matches.length===1?'':'s'}.` : 'Search complete — no matching Gigs.');
+      if (matches.length === 0) {
+        showError('No matching Gigs today.');
+      } else if (matches.length === 1) {
+        gigInput.value = matches[0].gig_id;
+        setSearchStatus('Gig found. Loading details and preparing stops…');
+        await loadGigFromApi();
+        setSearchStatus('Gig lookup complete.');
+      } else if (!data.exact) {
+        hint.style.display = 'block';
+        field.focus();
+      } else {
+        for (const match of matches) {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.textContent = match.city + ' · ' + match.deliveries + ' Deliveries · Gig ' + match.gig_id;
+          item.style.cssText = 'display:block;width:100%;padding:10px;margin-top:6px;text-align:left';
+          item.addEventListener('click', () => {
+            gigInput.value = match.gig_id;
+            loadGigFromApi();
+          });
+          list.appendChild(item);
+        }
+      }
+    } catch (error) {
+      setSearchStatus('Search failed.');
+      showError(error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+ + amount + '…');
 
     const apiBase = getApiBaseUrl();
     if (apiBase === null) {

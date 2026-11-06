@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Roadie Radar · Live Table (Viewer)</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Roadie Radar · Live Table</title>
 <style>
-:root{font:14px system-ui,sans-serif;color:#e7f2f7;background:#081724}*{box-sizing:border-box}body{margin:0}header{position:sticky;top:0;background:#0d2333;padding:12px 20px;border-bottom:1px solid #2b4c5a;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:15px}h1{font-size:21px;margin:0}#status{color:#7faec3;font-weight:500}nav{display:flex;gap:8px;align-items:center;padding:10px 20px;flex-wrap:wrap}button,select{background:#153449;color:#e7f2f7;border:1px solid #406171;border-radius:7px;padding:7px 10px;cursor:pointer}.active{background:#146f76}main{padding:0 14px}.scroll{overflow:auto;max-height:calc(100vh - 142px)}table{border-collapse:collapse;width:100%;white-space:nowrap;font-variant-numeric:tabular-nums}th{position:sticky;top:0;background:#163247;color:#9bd4dc;text-align:left;cursor:pointer;z-index:1}td,th{padding:7px 10px;border-bottom:1px solid #254052}tbody tr:hover{background:#1a3c50}td.money,td.rate{font-weight:800;font-size:16px}.up{color:#67f0a1}.down{color:#ff8e8e}.new{background:#123d34}.gone{opacity:.35}.small{color:#a0b8c8;font-size:12px}#detail{padding:14px 20px;background:#10283a;border-top:1px solid #3b6070;min-height:45px;white-space:pre-wrap}#age{font-weight:700}th.sorted{color:#fff}#count{font-weight:800}th[draggable=true]{cursor:grab}th.dragover{outline:2px solid #67f0a1}#columns-panel{display:none;position:absolute;top:100%;right:12px;background:#153449;padding:12px;border:1px solid #406171;border-radius:8px;z-index:5;max-height:60vh;overflow:auto;box-shadow:0 8px 25px #0009}#columns-panel.open{display:block}#columns-panel label{display:block;padding:5px;white-space:nowrap}#columns-wrap{position:relative}
+:root{font:14px system-ui,sans-serif;color:#e7f2f7;background:#081724}*{box-sizing:border-box}body{margin:0}header{position:sticky;top:0;background:#0d2333;padding:12px 20px;border-bottom:1px solid #2b4c5a;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:15px}h1{font-size:21px;margin:0}#status{color:#7faec3;font-weight:500}nav{display:flex;gap:8px;align-items:center;padding:10px 20px;flex-wrap:wrap}button,select{background:#153449;color:#e7f2f7;border:1px solid #406171;border-radius:7px;padding:7px 10px;cursor:pointer}.active{background:#146f76}#now{font-weight:800;width:112px;min-width:112px;max-width:112px;flex:0 0 112px;box-sizing:border-box;text-align:center;white-space:nowrap;letter-spacing:.35px}#now.health-live{letter-spacing:1.5px}#now.health-live{background:#00ff00;color:#071c10;border-color:#00ff00}#now.health-delay{background:#ffd600;color:#241c00;border-color:#ffd600}#now.health-offline{background:#ff3030;color:#fff;border-color:#ff3030}#now.health-waiting{background:#526575;color:#fff;border-color:#526575}main{padding:0 14px}.scroll{overflow:auto;max-height:calc(100vh - 142px)}table{border-collapse:collapse;width:100%;white-space:nowrap;font-variant-numeric:tabular-nums}th{position:sticky;top:0;background:#163247;color:#9bd4dc;text-align:left;cursor:pointer;z-index:1}td,th{padding:7px 10px;border-bottom:1px solid #254052}tbody tr:hover{background:#1a3c50}td.money,td.rate{font-weight:800;font-size:16px}.up{color:#67f0a1}.down{color:#ff8e8e}.new{background:#123d34}.gone{opacity:.35}.small{color:#a0b8c8;font-size:12px}#detail{padding:14px 20px;background:#10283a;border-top:1px solid #3b6070;min-height:45px;white-space:pre-wrap}#age{font-weight:700}th.sorted{color:#fff}#count{font-weight:800}th[data-col]{touch-action:pan-x pan-y;user-select:none;-webkit-user-select:none}th.dragover{outline:2px solid #67f0a1}#columns-panel{display:none;position:absolute;top:100%;right:12px;background:#153449;padding:12px;border:1px solid #406171;border-radius:8px;z-index:5;max-height:60vh;overflow:auto;box-shadow:0 8px 25px #0009}#columns-panel.open{display:block}#columns-panel label{display:block;padding:5px;white-space:nowrap}#columns-wrap{position:relative}
 
 #latency-panel{display:flex;align-items:center;gap:10px;min-width:220px}#latency-panel button{flex:1;min-width:0}#latency-result{display:block;min-width:108px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:#9fe7b9;background:#102c3a;border:1px solid #406171;border-radius:7px;padding:8px 10px;white-space:nowrap}
 @media(max-width:700px) and (orientation:portrait){nav>#latency-panel{grid-column:1 / -1;width:100%}#latency-panel button{min-height:42px}#latency-result{min-width:118px}}
@@ -342,28 +342,26 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 .header-identity{display:flex;align-items:center;gap:18px;min-width:0;flex-wrap:wrap}
 .header-identity #count{font-size:17px;color:#e7f2f7;white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.header-identity{gap:7px 14px;margin-bottom:7px}.header-identity h1{margin-bottom:0}.header-identity #count{font-size:14px}}
-
-/* READ-ONLY VIEWER STYLES */
-.submit-placeholder.view-only{background:#17384a;border:1px solid #2b556b;color:#85adc2;font-weight:600;cursor:not-allowed;opacity:.85;white-space:nowrap;padding:4px 8px;border-radius:5px;font-size:11px}
+.submit-placeholder{background:#235c48;border-color:#3e9673;color:#d6f7e3;font-weight:700;cursor:not-allowed;opacity:.8;white-space:nowrap}
+.submit-placeholder:disabled{opacity:.8}
 .mobile-offer{min-width:0}
-.mobile-offer .submit-placeholder.view-only{width:100%;margin-top:5px;padding:8px;font-size:12px;display:block;text-align:center}
-.viewer-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:0.4px;color:#79c6ff;background:#0d2639;border:1px solid #1f4761;border-radius:6px;padding:4px 9px;white-space:nowrap}
+.mobile-offer .submit-placeholder{width:100%;margin-top:5px}
 
-/* Visible Dashboard identity badge & diagnostics modal (Viewer v1.1.0 mirroring Mac v1.1.0) */
+/* Visible Dashboard identity badge & diagnostics modal (v1.0.0 / Issue #11) */
 .version-badge{background:#102b3e;color:#85d6c8;border:1px solid #2b5568;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;letter-spacing:0.3px;font-variant-numeric:tabular-nums;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s ease}
 .version-badge:hover{background:#163d57;border-color:#48d2be;color:#ffffff;box-shadow:0 0 8px rgba(72,210,190,0.3)}
 .version-badge:active{transform:scale(0.98)}
 .diag-modal{display:none;position:fixed;inset:0;z-index:10001;background:rgba(4,14,24,0.78);align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
 .diag-modal.open{display:flex}
-.diag-sheet{width:min(660px,100%);max-height:calc(100dvh - 32px);overflow:auto;position:relative;background:#0d2333;border:1px solid #365a6f;border-radius:14px;padding:20px;box-shadow:0 16px 55px rgba(0,0,0,0.75);color:#e7f2f7}
+.diag-sheet{width:min(640px,100%);max-height:calc(100dvh - 32px);overflow:auto;position:relative;background:#0d2333;border:1px solid #365a6f;border-radius:14px;padding:20px;box-shadow:0 16px 55px rgba(0,0,0,0.75);color:#e7f2f7}
 .diag-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #254456;padding-bottom:12px;margin-bottom:14px}
 .diag-header h2{font-size:17px;margin:0;color:#9be2d7;font-weight:750;letter-spacing:0.2px}
 .diag-close{background:transparent;border:0;color:#91aabc;font-size:24px;line-height:1;cursor:pointer;padding:0 6px;border-radius:4px}
 .diag-close:hover{color:#fff;background:#18364b}
 .diag-section-title{font-size:12px;font-weight:750;color:#79a7bc;text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 8px}
 .diag-section-title:first-of-type{margin-top:0}
-.diag-grid{display:grid;grid-template-columns:210px 1fr;gap:6px 12px;font-size:12px;background:#091926;border:1px solid #1f3b4c;border-radius:8px;padding:10px 12px;font-variant-numeric:tabular-nums}
-@media(max-width:560px){.diag-grid{grid-template-columns:1fr;gap:3px 0}}
+.diag-grid{display:grid;grid-template-columns:190px 1fr;gap:6px 12px;font-size:12px;background:#091926;border:1px solid #1f3b4c;border-radius:8px;padding:10px 12px;font-variant-numeric:tabular-nums}
+@media(max-width:540px){.diag-grid{grid-template-columns:1fr;gap:3px 0}}
 .diag-label{color:#8aa4b3;font-weight:550}
 .diag-val{color:#e7f2f7;word-break:break-all}
 .diag-val.ok{color:#4de2ac}
@@ -376,18 +374,34 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 .diag-btn:hover{background:#1d4661;border-color:#5a879d;color:#fff}
 .diag-btn:active{transform:scale(0.98)}
 
-/* Non-intrusive toast for read-only clicks */
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#102b3e;color:#e7f2f7;border:1px solid #3d6a85;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:99999;transition:transform .25s ease,opacity .25s ease;opacity:0;pointer-events:none}
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-/* Keep the status button stable across label changes. */
-#now{width:112px;min-width:112px;max-width:112px;flex:0 0 112px;box-sizing:border-box;text-align:center;white-space:nowrap}
-#now.health-live{background:#00ff00;color:#071c10;border-color:#00ff00;letter-spacing:1.5px}
-#now.health-delay{background:#ffd600;color:#241c00;border-color:#ffd600}
-#now.health-offline{background:#ff3030;color:#fff;border-color:#ff3030}
-#now.health-waiting{background:#526575;color:#fff;border-color:#526575}
+/* Manual full-page reload; no polling or Collector/Bridge commands. */
+#dashboard-page-reload{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:36px;height:34px;padding:0;font-size:23px;line-height:1;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:7px}
+#dashboard-page-reload:focus-visible{outline:2px solid #67f0a1;outline-offset:3px}
 </style><style>.fit-badge{display:inline-block;min-width:54px;padding:2px 6px;border:1px solid;border-radius:5px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2px}.fit-easy{color:#67f0a1;border-color:#2f9e68;background:#123d34}.fit-tight{color:#ffd166;border-color:#b88822;background:#3a2d0a}.fit-not{color:#ff8e8e;border-color:#b84d4d;background:#3d1717}</style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">Viewer v1.5.0 · Mirrors Mac <span id="version-sha">c22fc79</span></button></div></header>
-<nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-gateway round trip">TEST LATENCY</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><span class="viewer-tag" title="Strictly read-only; offer submission is restricted to local primary device">🔒 VIEW-ONLY VIEWER</span><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span><span id="snap-monitor" title="LIVE Gig IDs / latest complete SQLite snapshot" style="font-size:12px;color:#85d6c8;white-space:nowrap">UI / SNAP: — / —</span><button type="button" id="snap-log-toggle" style="font-size:11px;padding:3px 7px;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:5px;cursor:pointer">LOG</button></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">v1.7.7 · <span id="version-sha">40c195d</span></button></div></header>
+<nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-Bridge round trip; Android test will be connected separately">TEST BRIDGE</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><button id="check-submit" type="button" title="Read-only Samsung connection check; uses diagnostic ID when LIVE is empty; never submits">Check Submit</button><output id="check-submit-result" class="small" aria-live="polite"></output><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
+<option value="pickup_desc">Pickup Z–A</option>
+<option value="pickup_asc">Pickup A–Z</option>
+<option value="miles_desc">Distance ↓</option>
+<option value="first_desc">First seen ↓</option>
+<option value="first_asc">First seen ↑</option>
+<option value="last_desc">Last seen ↓</option>
+<option value="last_asc">Last seen ↑</option>
+<option value="city_desc">Destination Z–A</option>
+<option value="delta_desc">Price change ↓</option>
+<option value="delta_asc">Price change ↑</option>
+<option value="deliveries_desc">Deliveries ↓</option>
+<option value="deliveries_asc">Deliveries ↑</option>
+<option value="weight_desc">Weight ↓</option>
+<option value="weight_asc">Weight ↑</option>
+<option value="items_weight_desc">Items weight ↓</option>
+<option value="items_weight_asc">Items weight ↑</option>
+<option value="volume_desc">Volume ↓</option>
+<option value="volume_asc">Volume ↑</option>
+<option value="items_volume_desc">Items volume ↓</option>
+<option value="items_volume_asc">Items volume ↑</option>
+<option value="gig_id_asc">Gig ID ↑</option>
+<option value="gig_id_desc">Gig ID ↓</option>
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
 <option value="hour">$/hour ↓</option>
@@ -402,6 +416,28 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 <option value="miles">Distance ↑</option>
 <option value="city">Destination A–Z</option>
 </select></label><label>Secondary <select id="sort-secondary"><option value="none">None</option>
+<option value="pickup_desc">Pickup Z–A</option>
+<option value="pickup_asc">Pickup A–Z</option>
+<option value="miles_desc">Distance ↓</option>
+<option value="first_desc">First seen ↓</option>
+<option value="first_asc">First seen ↑</option>
+<option value="last_desc">Last seen ↓</option>
+<option value="last_asc">Last seen ↑</option>
+<option value="city_desc">Destination Z–A</option>
+<option value="delta_desc">Price change ↓</option>
+<option value="delta_asc">Price change ↑</option>
+<option value="deliveries_desc">Deliveries ↓</option>
+<option value="deliveries_asc">Deliveries ↑</option>
+<option value="weight_desc">Weight ↓</option>
+<option value="weight_asc">Weight ↑</option>
+<option value="items_weight_desc">Items weight ↓</option>
+<option value="items_weight_asc">Items weight ↑</option>
+<option value="volume_desc">Volume ↓</option>
+<option value="volume_asc">Volume ↑</option>
+<option value="items_volume_desc">Items volume ↓</option>
+<option value="items_volume_asc">Items volume ↑</option>
+<option value="gig_id_asc">Gig ID ↑</option>
+<option value="gig_id_desc">Gig ID ↓</option>
 <option value="price">Payout ↓</option>
 <option value="price_asc">Payout ↑</option>
 <option value="hour">$/hour ↓</option>
@@ -415,7 +451,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 <option value="newest">Newest first</option>
 <option value="miles">Distance ↑</option>
 <option value="city">Destination A–Z</option>
-</select></label><label>Min payout $ <input id="min-payout" type="number" min="0" step="1" inputmode="decimal" placeholder="All" style="width:88px;background:#102b3e;color:white;border:1px solid #406171;border-radius:6px;padding:7px" aria-label="Minimum payout filter"></label><label>WebSocket <input id="endpoint" style="width:280px;background:#102b3e;color:white;border:1px solid #406171;padding:7px" aria-label="WebSocket endpoint"></label><button id="connect">Connect</button><label style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" id="sound-enabled"> Sound</label><div class="sound-test-group" style="display:inline-flex;align-items:center;gap:3px"><button id="test-sound" type="button" title="Test all four alerts in sequence">Test All</button><button id="test-sound-up" class="btn-sound-test" type="button" title="Audition New Order alert (High Ascending Chime)">↑ New</button><button id="test-sound-down" class="btn-sound-test" type="button" title="Audition Order Gone alert (Low Descending Drop)">↓ Gone</button><button id="test-sound-price-up" class="btn-sound-test" type="button" title="Audition Price Increase alert (Triple Sharp Beeps)">$$↑ Up</button><button id="test-sound-price-down" class="btn-sound-test" type="button" title="Audition Price Decrease alert (Soft Low Drop)">$$↓ Down</button></div><div id="columns-wrap"><button id="columns-toggle" type="button">Columns ⚙</button><div id="columns-panel" aria-label="Column visibility"></div></div><span class="small">Green = new / price increase · Red = price decrease · Dim = no longer observed</span></nav>
+</select></label><button type="button" id="comfort-sort" aria-pressed="false" title="Final sorting of currently filtered gigs: 10% hourly-rate bands, fewest delivery points first">Comfort 10%: OFF</button><label>Min payout $ <input id="min-payout" type="number" min="0" step="1" inputmode="decimal" placeholder="All" style="width:88px;background:#102b3e;color:white;border:1px solid #406171;border-radius:6px;padding:7px" aria-label="Minimum payout filter"></label><label>WebSocket <input id="endpoint" style="width:240px;background:#102b3e;color:white;border:1px solid #406171;padding:7px" aria-label="WebSocket endpoint"></label><button id="connect">Connect</button><label style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><input type="checkbox" id="sound-enabled"> Sound</label><div class="sound-test-group" style="display:inline-flex;align-items:center;gap:3px"><button id="test-sound" type="button" title="Test new Gig and price increase alerts">Test All</button><button id="test-sound-up" class="btn-sound-test" type="button" title="Audition New Order alert (High Ascending Chime)">↑ New</button><button id="test-sound-price-up" class="btn-sound-test" type="button" title="Audition Price Increase alert (G4 to C5, 50ms per note)">$$↑ Up</button></div><div id="columns-wrap"><button id="columns-toggle" type="button">Columns ⚙</button><div id="columns-panel" aria-label="Column visibility"></div></div><button type="button" id="dashboard-page-reload" title="Reload entire Dashboard page" aria-label="Reload entire Dashboard page" onclick="window.location.reload()">⟳</button><span class="small">Green = new / price increase · Red = price decrease · Dim = no longer observed</span></nav>
 
 <div id="day-nav" aria-label="History date navigation">
   <button id="day-prev" type="button">‹</button>
@@ -423,36 +459,426 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
   <button id="day-next" type="button">›</button>
 </div>
 
-<main><div class="scroll"><table><thead><tr id="headers"></tr></thead><tbody id="rows"></tbody></table></div><div id="mobile-cards" aria-label="Mobile gigs"></div></main><aside id="detail" class="small">Select a row for details. Data is observational; visible does not guarantee available. Submissions restricted to primary device.</aside>
-<div id="toast" role="status" aria-live="polite"></div>
-
+<div id="snap-log-panel" style="display:none;background:#091a26;border-bottom:2px solid #1c3b4f;padding:10px 16px;color:#a8d9df;font:11px ui-monospace,monospace" aria-live="off">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #1c3b4f;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-weight:700;letter-spacing:0.5px;color:#00e5ff">EVENT-DRIVEN MISMATCH MONITOR (v1.7.6)</span>
+      <span id="mismatch-status-badge" style="background:#133347;color:#85d6c8;padding:2px 8px;border-radius:4px;font-weight:600">IDLE (Ring buffer: 3s)</span>
+      <span id="operating-window-badge" style="background:#133347;color:#85d6c8;padding:2px 8px;border-radius:4px">Window: 6AM–6PM NY</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button type="button" id="btn-export-csv" style="background:#176b43;color:#e7f2f7;border:1px solid #2f9e68;border-radius:4px;padding:3px 10px;cursor:pointer;font-weight:600">Export CSV</button>
+      <button type="button" id="btn-refresh-events" style="background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:4px;padding:3px 8px;cursor:pointer">Refresh DB Events</button>
+      <button type="button" id="btn-toggle-log-view" style="background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:4px;padding:3px 8px;cursor:pointer">Show Stream</button>
+    </div>
+  </div>
+  <div id="mismatch-events-container" style="max-height:160px;overflow:auto;margin-bottom:6px">
+    <table id="mismatch-events-table" style="width:100%;border-collapse:collapse;text-align:left;font-size:11px">
+      <thead>
+        <tr style="color:#67f0a1;border-bottom:1px solid #254052">
+          <th style="padding:3px 6px">Event ID</th>
+          <th style="padding:3px 6px">Start (NY)</th>
+          <th style="padding:3px 6px">Duration</th>
+          <th style="padding:3px 6px">Max Δ</th>
+          <th style="padding:3px 6px">Start UI/SNAP</th>
+          <th style="padding:3px 6px">End UI/SNAP</th>
+          <th style="padding:3px 6px">Snap ID (Age)</th>
+          <th style="padding:3px 6px">Status</th>
+          <th style="padding:3px 6px">Transitions / Notes</th>
+        </tr>
+      </thead>
+      <tbody id="mismatch-events-body">
+        <tr><td colspan="9" style="padding:6px;color:#7faec3;text-align:center">No mismatch events recorded yet. Ring buffer running continuously (3s).</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="snap-stream-log" style="display:none;max-height:90px;overflow:auto;padding:4px 8px;background:#06121c;color:#7faec3;white-space:pre-wrap;border-radius:4px">Waiting for live activity…</div>
+</div>
+<main><div class="scroll"><table><thead><tr id="headers"></tr></thead><tbody id="rows"></tbody></table></div><div id="mobile-cards" aria-label="Mobile gigs"></div></main><aside id="detail" class="small">Select a row for details. Data is observational; visible does not guarantee available.</aside>
 <script>
 'use strict';
 const $=id=>document.getElementById(id), historic=new Map();let liveIds=new Set(), socket=null, mode='now',lastSnapshot=0,selected=null;
+const RING_BUFFER_WINDOW_MS = 3000;
+const STABILIZATION_TAIL_MS = 3000;
+const SNAPSHOT_STALE_THRESHOLD_MS = 15000;
+const ringBuffer = [];
+let activeMismatchEvent = null;
+let tailStabilizationTimer = null;
+let recordedMismatchEvents = [];
+let latestDbSnapshot = null;
+const snapLog = [];
+const SNAP_LOG_LIMIT = 80;
+let lastSnapshotLogKey = '';
+
+function isRoadieOperatingWindow() {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      hour12: false
+    }).formatToParts(new Date());
+    const hourPart = parts.find(p => p.type === 'hour');
+    const hour = parseInt(hourPart ? hourPart.value : '0', 10);
+    return hour >= 6 && hour < 18;
+  } catch(e) {
+    const h = new Date().getHours();
+    return h >= 6 && h < 18;
+  }
+}
+
+function updateMismatchBadges() {
+  const statusBadge = $('mismatch-status-badge');
+  const windowBadge = $('operating-window-badge');
+  const inWindow = isRoadieOperatingWindow();
+  if (windowBadge) {
+    windowBadge.textContent = inWindow ? 'Window: 6AM–6PM NY (ACTIVE)' : 'Window: 6AM–6PM NY (OFF-HOURS)';
+    windowBadge.style.color = inWindow ? '#67f0a1' : '#d19a66';
+  }
+  if (statusBadge) {
+    if (activeMismatchEvent) {
+      if (tailStabilizationTimer) {
+        statusBadge.textContent = 'STABILIZING (Tail 3s...) · Max Δ ' + activeMismatchEvent.max_discrepancy;
+        statusBadge.style.background = '#42280d';
+        statusBadge.style.color = '#ffd166';
+      } else {
+        statusBadge.textContent = '● RECORDING MISMATCH · Event #' + activeMismatchEvent.event_id.slice(-6) + ' · Max Δ ' + activeMismatchEvent.max_discrepancy;
+        statusBadge.style.background = '#4a1212';
+        statusBadge.style.color = '#ff8e8e';
+      }
+    } else {
+      statusBadge.textContent = 'IDLE (Ring buffer: 3s)';
+      statusBadge.style.background = '#133347';
+      statusBadge.style.color = '#85d6c8';
+    }
+  }
+}
+
+function renderMismatchTable() {
+  const tbody = $('mismatch-events-body');
+  if (!tbody) return;
+  if (!recordedMismatchEvents.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="padding:6px;color:#7faec3;text-align:center">No mismatch events recorded yet. Ring buffer running continuously (3s).</td></tr>';
+    return;
+  }
+  tbody.innerHTML = recordedMismatchEvents.map(e => {
+    const st = new Date(e.start_at).toLocaleTimeString();
+    const dur = e.duration_ms != null ? e.duration_ms + 'ms' : '—';
+    const discColor = e.max_discrepancy > 0 ? '#ff8e8e' : '#67f0a1';
+    const statusColor = e.recovery_status === 'RECOVERED' ? '#67f0a1' : '#ffd166';
+    const transCount = (e.transitions || []).length;
+    const transSummary = (e.transitions || []).map(t => `${t.t_rel_ms}ms: ${t.ui_raw}/${t.snap}`).join(' → ');
+    return `<tr style="border-bottom:1px solid #1a384c">
+      <td style="padding:4px 6px;color:#a0c2d4">${esc(e.event_id.slice(-10))}</td>
+      <td style="padding:4px 6px">${esc(st)}</td>
+      <td style="padding:4px 6px;color:#00e5ff;font-weight:700">${esc(dur)}</td>
+      <td style="padding:4px 6px;color:${discColor};font-weight:700">Δ ${e.max_discrepancy}</td>
+      <td style="padding:4px 6px">${e.start_ui_raw} / ${e.start_snap}</td>
+      <td style="padding:4px 6px">${e.end_ui_raw ?? '—'} / ${e.end_snap ?? '—'}</td>
+      <td style="padding:4px 6px">#${e.snapshot_id ?? '—'} (${e.snapshot_age_ms ?? '—'}ms)</td>
+      <td style="padding:4px 6px;color:${statusColor};font-weight:700">${esc(e.recovery_status || 'UNKNOWN')}</td>
+      <td style="padding:4px 6px;color:#85d6c8" title="${esc(transSummary)}">${transCount} steps (${esc(transSummary.slice(0, 45))}${transSummary.length > 45 ? '…' : ''})</td>
+    </tr>`;
+  }).join('');
+}
+
+function closeAndPersistMismatchEvent(status, incompleteReason) {
+  if (!activeMismatchEvent) return;
+  if (tailStabilizationTimer) {
+    clearTimeout(tailStabilizationTimer);
+    tailStabilizationTimer = null;
+  }
+  const now = Date.now();
+  const evt = activeMismatchEvent;
+  activeMismatchEvent = null;
+  try { localStorage.removeItem('roadie_active_mismatch'); } catch(e) {}
+
+  evt.end_at = new Date(now).toISOString();
+  evt.duration_ms = evt.recovery_time ? (evt.recovery_time - evt.start_time) : (now - evt.start_time);
+  evt.total_duration_ms = now - evt.start_time;
+  evt.recovery_status = status;
+  evt.incomplete_reason = incompleteReason || null;
+  evt.end_ui_raw = liveIds ? liveIds.size : 0;
+  evt.end_snap = latestDbSnapshot ? (latestDbSnapshot.gig_ids ? latestDbSnapshot.gig_ids.length : latestDbSnapshot.count) : 0;
+
+  recordedMismatchEvents.unshift(evt);
+  if (recordedMismatchEvents.length > 100) recordedMismatchEvents.length = 100;
+  renderMismatchTable();
+  updateMismatchBadges();
+
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({
+      type: 'save_mismatch_event',
+      event: evt
+    }));
+  }
+}
+
+function refreshSnapshotMonitor() {
+  const now = Date.now();
+  const uiIds = new Set(liveIds);
+  const db = latestDbSnapshot;
+  const label = $('snap-monitor');
+
+  updateMismatchBadges();
+
+  if (!label) return;
+  if (!db) {
+    label.textContent = 'UI / SNAP: ' + uiIds.size + ' / —';
+    label.style.color = '#85d6c8';
+    label.title = 'Waiting for latest complete SQLite snapshot telemetry';
+    return;
+  }
+
+  const dbIds = new Set(db.gig_ids || []);
+  const dbCount = dbIds.size;
+  const missing = [...dbIds].filter(id => !uiIds.has(id));
+  const extra = [...uiIds].filter(id => !dbIds.has(id));
+  const scanTime = Date.parse(db.scan_at);
+  const snapAgeMs = Number.isFinite(scanTime) ? Math.max(0, now - scanTime) : 0;
+  const isStale = snapAgeMs > SNAPSHOT_STALE_THRESHOLD_MS;
+  const inWindow = isRoadieOperatingWindow();
+  const isMismatch = (missing.length > 0 || extra.length > 0);
+
+  if (!inWindow) {
+    label.textContent = 'UI / SNAP: ' + uiIds.size + ' / ' + dbCount + ' (off-hours)';
+    label.style.color = '#8fa3b0';
+    label.title = 'Outside Roadie operating window (6:00 AM - 6:00 PM NY). Mismatch alerts suppressed.';
+  } else if (isStale) {
+    label.textContent = 'UI / SNAP: ' + uiIds.size + ' / ' + dbCount + ' (stale ' + Math.round(snapAgeMs / 1000) + 's)';
+    label.style.color = '#d19a66';
+    label.title = 'SQLite snapshot #' + db.snapshot_id + ' is stale (' + Math.round(snapAgeMs / 1000) + 's old). Discrepancy warnings suppressed.';
+  } else if (!isMismatch) {
+    label.textContent = 'UI / SNAP: ' + uiIds.size + ' / ' + dbCount;
+    label.style.color = '#67f0a1';
+    label.title = 'In sync with SQLite snapshot #' + db.snapshot_id + ' (' + Math.round(snapAgeMs) + 'ms ago)';
+  } else {
+    const delta = uiIds.size - dbCount;
+    label.textContent = 'UI / SNAP: ' + uiIds.size + ' / ' + dbCount + ' (Δ ' + (delta > 0 ? '+' : '') + delta + ')';
+    label.style.color = '#ff8e8e';
+    label.title = 'Discrepancy vs snapshot #' + db.snapshot_id + ': missing=[' + missing.join(',') + '] extra=[' + extra.join(',') + ']';
+  }
+
+  ringBuffer.push({
+    t: now,
+    ui_raw: uiIds.size,
+    snap: dbCount,
+    delta: uiIds.size - dbCount,
+    snap_id: db.snapshot_id,
+    snap_age_ms: snapAgeMs,
+    missing: [...missing],
+    extra: [...extra],
+    is_mismatch: isMismatch
+  });
+  const ringCutoff = now - RING_BUFFER_WINDOW_MS;
+  while (ringBuffer.length > 0 && ringBuffer[0].t < ringCutoff) {
+    ringBuffer.shift();
+  }
+
+  const qualifies = isMismatch && inWindow && !isStale;
+
+  if (qualifies) {
+    const disc = Math.max(Math.abs(uiIds.size - dbCount), missing.length + extra.length);
+    if (!activeMismatchEvent) {
+      const eid = 'evt_' + now + '_' + Math.floor(Math.random() * 1000);
+      activeMismatchEvent = {
+        event_id: eid,
+        start_at: new Date(now).toISOString(),
+        start_time: now,
+        start_ui_raw: uiIds.size,
+        start_snap: dbCount,
+        snapshot_id: db.snapshot_id,
+        snapshot_age_ms: snapAgeMs,
+        max_discrepancy: disc,
+        missing_ids: [...missing],
+        extra_ids: [...extra],
+        ui_visible: typeof arr !== 'undefined' ? arr.length : uiIds.size,
+        source: db.source || 'UNKNOWN',
+        pre_history: [...ringBuffer],
+        transitions: [{
+          t_rel_ms: 0,
+          ui_raw: uiIds.size,
+          snap: dbCount,
+          delta: uiIds.size - dbCount,
+          missing: [...missing],
+          extra: [...extra],
+          snap_id: db.snapshot_id
+        }],
+        recovery_time: null,
+        recovery_status: 'STILL_OPEN'
+      };
+      try { localStorage.setItem('roadie_active_mismatch', JSON.stringify(activeMismatchEvent)); } catch(e) {}
+    } else {
+      if (tailStabilizationTimer) {
+        clearTimeout(tailStabilizationTimer);
+        tailStabilizationTimer = null;
+        activeMismatchEvent.transitions.push({
+          t_rel_ms: now - activeMismatchEvent.start_time,
+          note: 'RE_MISMATCH_IN_TAIL',
+          ui_raw: uiIds.size,
+          snap: dbCount,
+          delta: uiIds.size - dbCount,
+          missing: [...missing],
+          extra: [...extra],
+          snap_id: db.snapshot_id
+        });
+      } else {
+        const lastT = activeMismatchEvent.transitions[activeMismatchEvent.transitions.length - 1];
+        if (!lastT || lastT.ui_raw !== uiIds.size || lastT.snap !== dbCount || lastT.delta !== (uiIds.size - dbCount)) {
+          activeMismatchEvent.transitions.push({
+            t_rel_ms: now - activeMismatchEvent.start_time,
+            ui_raw: uiIds.size,
+            snap: dbCount,
+            delta: uiIds.size - dbCount,
+            missing: [...missing],
+            extra: [...extra],
+            snap_id: db.snapshot_id
+          });
+        }
+      }
+      if (disc > activeMismatchEvent.max_discrepancy) {
+        activeMismatchEvent.max_discrepancy = disc;
+      }
+      for (const m of missing) {
+        if (!activeMismatchEvent.missing_ids.includes(m)) activeMismatchEvent.missing_ids.push(m);
+      }
+      for (const ex of extra) {
+        if (!activeMismatchEvent.extra_ids.includes(ex)) activeMismatchEvent.extra_ids.push(ex);
+      }
+      activeMismatchEvent.end_ui_raw = uiIds.size;
+      activeMismatchEvent.end_snap = dbCount;
+      try { localStorage.setItem('roadie_active_mismatch', JSON.stringify(activeMismatchEvent)); } catch(e) {}
+    }
+  } else if (activeMismatchEvent) {
+    if (!tailStabilizationTimer) {
+      activeMismatchEvent.recovery_time = now;
+      activeMismatchEvent.transitions.push({
+        t_rel_ms: now - activeMismatchEvent.start_time,
+        note: 'SYNC_OK_START_TAIL',
+        ui_raw: uiIds.size,
+        snap: dbCount,
+        delta: 0,
+        missing: [],
+        extra: [],
+        snap_id: db.snapshot_id
+      });
+      tailStabilizationTimer = setTimeout(() => {
+        closeAndPersistMismatchEvent('RECOVERED', null);
+      }, STABILIZATION_TAIL_MS);
+    }
+  }
+
+  updateMismatchBadges();
+
+  const key = [db.snapshot_id, [...uiIds].sort().join(','), isStale ? 'stale' : 'fresh', inWindow ? 'in' : 'out'].join('|');
+  if (key === lastSnapshotLogKey) return;
+  lastSnapshotLogKey = key;
+  const timeStr = new Date().toLocaleTimeString();
+  let line = '';
+  if (!inWindow) {
+    line = timeStr + ' | UI ' + uiIds.size + ' / SNAP ' + dbCount + ' | snapshot_id=' + db.snapshot_id +
+      ' | age=' + Math.round(snapAgeMs / 1000) + 's [OFF-HOURS - no mismatch alert]';
+  } else if (isStale) {
+    line = timeStr + ' | UI ' + uiIds.size + ' / SNAP ' + dbCount + ' | snapshot_id=' + db.snapshot_id +
+      ' | age=' + Math.round(snapAgeMs / 1000) + 's [STALE SNAPSHOT - discrepancy alert suppressed]';
+  } else if (!isMismatch) {
+    line = timeStr + ' | UI ' + uiIds.size + ' / SNAP ' + dbCount + ' | SYNC OK | snapshot_id=' + db.snapshot_id +
+      ' | age=' + Math.round(snapAgeMs) + 'ms';
+  } else {
+    const delta = uiIds.size - dbCount;
+    line = timeStr + ' | UI ' + uiIds.size + ' / SNAP ' + dbCount + ' | Δ ' + (delta > 0 ? '+' : '') + delta +
+      ' | snapshot_id=' + db.snapshot_id + ' | age=' + Math.round(snapAgeMs) + 'ms' +
+      ' | missing=[' + missing.join(',') + '] extra=[' + extra.join(',') + ']';
+  }
+  snapLog.unshift(line);
+  if (snapLog.length > SNAP_LOG_LIMIT) snapLog.length = SNAP_LOG_LIMIT;
+  const streamPanel = $('snap-stream-log');
+  if (streamPanel) streamPanel.textContent = snapLog.join('\n');
+}
+
+function exportMismatchEventsCsv() {
+  if (!recordedMismatchEvents || !recordedMismatchEvents.length) {
+    alert('No mismatch events to export.');
+    return;
+  }
+  const headers = [
+    'event_id', 'start_at', 'end_at', 'duration_ms', 'recovery_status',
+    'max_discrepancy', 'start_ui_raw', 'start_snap', 'end_ui_raw', 'end_snap',
+    'snapshot_id', 'snapshot_age_ms', 'missing_ids', 'extra_ids',
+    'incomplete_reason', 'transitions_json'
+  ];
+  const rows = recordedMismatchEvents.map(e => [
+    e.event_id,
+    e.start_at,
+    e.end_at || '',
+    e.duration_ms ?? '',
+    e.recovery_status || '',
+    e.max_discrepancy ?? 0,
+    e.start_ui_raw ?? 0,
+    e.start_snap ?? 0,
+    e.end_ui_raw ?? 0,
+    e.end_snap ?? 0,
+    e.snapshot_id ?? '',
+    e.snapshot_age_ms ?? '',
+    '"' + (e.missing_ids || []).join(';') + '"',
+    '"' + (e.extra_ids || []).join(';') + '"',
+    e.incomplete_reason || '',
+    '"' + JSON.stringify(e.transitions || []).replace(/"/g, '""') + '"'
+  ]);
+  const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const d = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.download = 'roadie-mismatch-events-' + d + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+$('snap-log-toggle')?.addEventListener('click', () => {
+  const panel = $('snap-log-panel');
+  if (!panel) return;
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) {
+    renderMismatchTable();
+    updateMismatchBadges();
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: 'get_mismatch_events', limit: 50 }));
+    }
+  }
+});
+$('btn-export-csv')?.addEventListener('click', exportMismatchEventsCsv);
+$('btn-refresh-events')?.addEventListener('click', () => {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type: 'get_mismatch_events', limit: 50 }));
+  }
+});
+$('btn-toggle-log-view')?.addEventListener('click', () => {
+  const stream = $('snap-stream-log');
+  if (!stream) return;
+  const isHidden = stream.style.display === 'none';
+  stream.style.display = isHidden ? 'block' : 'none';
+  const btn = $('btn-toggle-log-view');
+  if (btn) btn.textContent = isHidden ? 'Hide Stream' : 'Show Stream';
+});
+window.addEventListener('beforeunload', () => {
+  if (activeMismatchEvent) {
+    activeMismatchEvent.recovery_status = 'INCOMPLETE';
+    activeMismatchEvent.incomplete_reason = 'PAGE_UNLOAD';
+    activeMismatchEvent.end_at = new Date().toISOString();
+    try { localStorage.setItem('roadie_active_mismatch', JSON.stringify(activeMismatchEvent)); } catch(e) {}
+  }
+});
+setInterval(refreshSnapshotMonitor, 1000);
 let lastSearchTime=0, lastSearchScanId=null, lastSearchAt=null;
 const whole=v=>Number.isFinite(num(v))?String(Math.round(Number(v))):'—', wholeCash=v=>Number.isFinite(num(v))?'$'+Math.round(Number(v)):'—';
 const num=v=>v==null||v===''?null:Number(v), cash=v=>Number.isFinite(num(v))?'$'+Number(v).toFixed(2):'—', str=v=>v==null||v===''?'—':String(v), esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtTime=m=>Number.isFinite(num(m))?Math.floor(Number(m)/60)+'h '+String(Math.round(Number(m)%60)).padStart(2,'0')+'m':'—';
-const fmtFit=g=>{
-  const status=String(g.fit_status||'').toUpperCase();
-  const estimated=g.is_estimated_fit?' (estimated)':'';
-  if(status==='EASY_FIT')return '<span class="fit-badge fit-easy" title="Easy fit'+estimated+'">FIT</span>';
-  if(status==='TIGHT_FIT')return '<span class="fit-badge fit-tight" title="Tight fit'+estimated+'">TIGHT</span>';
-  if(status==='NOT_FIT')return '<span class="fit-badge fit-not" title="Not a fit'+estimated+'">NOT FIT</span>';
-  return '<span class="small" title="Fit check unavailable">—</span>';
-};
 const age=(t,end)=>{if(!t)return '—';const start=Date.parse(t),stop=end?Date.parse(end):Date.now();if(!Number.isFinite(start)||!Number.isFinite(stop))return '—';const sec=Math.max(0,Math.floor((stop-start)/1000));return Math.floor(sec/60)+'m '+String(sec%60).padStart(2,'0')+'s'};
 const idOf=g=>String(g.id??g.gig_id??g.key??'');
-
-function showToast(text) {
-  const el = $('toast');
-  if(!el) return;
-  el.textContent = text;
-  el.classList.add('show');
-  clearTimeout(el._timer);
-  el._timer = setTimeout(() => el.classList.remove('show'), 3500);
-}
-
 const roadieCity=g=>{
   const stops=Array.isArray(g.stops)?g.stops:[];
   const deliveries=stops.filter(s=>String(s.category??'').toLowerCase()==='delivery'&&s.location);
@@ -467,6 +893,7 @@ const roadieCargo=g=>{
   for(const gig of gigs){
     const size=gig.estimated_size??{};
     const items=Array.isArray(gig.items)?gig.items:[];
+    // Each physical metric uses explicit item data when complete; otherwise the gig estimate.
     let itemWeight=0,itemVolume=0,itemMaxWeight=null,itemMaxLength=null;
     let weightComplete=items.length>0,volumeComplete=items.length>0,lengthComplete=items.length>0;
     for(const item of items){
@@ -526,6 +953,8 @@ const roadieItemsGroundTruth=g=>{
   return {itemsWeight:totalWeight,itemsVolume:totalVolCuIn/1728.0,weightIncomplete,volumeIncomplete,hasItems:true};
 };
 const bearingArrow=g=>{const b=num(g.bearing);return b!=null&&b>=0&&b<360?'<svg viewBox="0 0 20 36" width="0.95em" height="1.7em" role="img" aria-label="Direction '+Math.round(b)+' degrees" style="display:inline-block;vertical-align:middle;margin-left:5px;overflow:visible;transform:rotate('+b+'deg)" xmlns="http://www.w3.org/2000/svg"><title>Direction to final stop: '+Math.round(b)+'°</title><path d="M10 34 V2 M2 10 L10 2 L18 10" fill="none" stroke="#28b86c" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':''};
+// Count physical delivery locations, not parcels. Coordinates are rounded to
+// 6 decimals (~0.1 m); missing coordinates do not produce guessed counts.
 const roadieDeliveryPoints=g=>{
   const stops=Array.isArray(g.stops)?g.stops:null;
   if(!stops)return null;
@@ -597,10 +1026,12 @@ const normalize=g=>{
 
 // --- ROADIE RADAR SHARP AUDIO ALERTS & DISTINCT PRICE SIGNALS ---
 const soundToggle=$('sound-enabled');
-soundToggle.checked=localStorage.getItem('roadie-live-sound')==='on';
+// Sound always starts OFF after page reload; checking it is the user gesture that unlocks audio.
+soundToggle.checked=false;
 let soundContext=null,soundTail=0,soundBaseline=null,isReconnecting=false;
 
 function getAudioContext(){
+  if(!soundToggle.checked)return null;
   if(!soundContext){
     const AudioCtx=window.AudioContext||window.webkitAudioContext;
     if(AudioCtx)soundContext=new AudioCtx();
@@ -612,151 +1043,164 @@ function getAudioContext(){
 }
 
 soundToggle.addEventListener('change',()=>{
- localStorage.setItem('roadie-live-sound',soundToggle.checked?'on':'off');
- if(soundToggle.checked){
-   getAudioContext();
- }
+  if(soundToggle.checked)getAudioContext();
 });
 
-function playToneV2(ctx, freq, type, tStart, duration, peakGain) {
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = type || 'triangle';
-  osc.frequency.setValueAtTime(freq, tStart);
-  
-  // Instant 3 ms linear attack ramp for crisp harmonic presence
-  gain.gain.setValueAtTime(0.0001, tStart);
-  gain.gain.linearRampToValueAtTime(peakGain, tStart + 0.003);
-  
-  // Percussive sustain and snappy exponential decay
-  const sustainEnd = tStart + Math.max(0.010, duration * 0.60);
-  gain.gain.setValueAtTime(peakGain, sustainEnd);
-  gain.gain.exponentialRampToValueAtTime(0.0001, tStart + duration);
-  
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(tStart);
-  osc.stop(tStart + duration + 0.015);
+function playToneV2(ctx,freq,type,tStart,duration,peakGain){
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.type=type||'triangle';
+  osc.frequency.setValueAtTime(freq,tStart);
+  // Crisp attack: 3ms fast linear ramp to peak amplitude (eliminates clicks while delivering immediate bite)
+  gain.gain.setValueAtTime(0.0001,tStart);
+  gain.gain.linearRampToValueAtTime(peakGain,tStart+0.003);
+  // Percussive sustain & decay
+  const sustainEnd=tStart+Math.max(0.010,duration*0.60);
+  gain.gain.setValueAtTime(peakGain,sustainEnd);
+  gain.gain.exponentialRampToValueAtTime(0.0001,tStart+duration);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(tStart);osc.stop(tStart+duration+0.015);
 }
 
-function scheduleAlert(ctx, kind, tStart) {
-  if (kind === 'up') {
-    // Restored High Ascending Chime: C6 (1046.50 Hz) -> G6 (1567.98 Hz), 260 ms
-    playToneV2(ctx, 1046.50, 'triangle', tStart, 0.110, 0.24);
-    playToneV2(ctx, 1567.98, 'triangle', tStart + 0.110, 0.150, 0.26);
+function scheduleAlert(ctx,kind,tStart){
+  if(kind==='up'){
+    // Restored approved sharp chime: Tone 1 (1046.50Hz / 110ms) -> Tone 2 (1567.98Hz / 150ms)
+    playToneV2(ctx,1046.50,'triangle',tStart,0.110,0.24);
+    playToneV2(ctx,1567.98,'triangle',tStart+0.110,0.150,0.26);
     return 0.260;
   }
-  if (kind === 'down') {
-    // Restored Low Descending Drop: D5 (587.33 Hz) -> D4 (293.66 Hz), 260 ms
-    playToneV2(ctx, 587.33, 'triangle', tStart, 0.110, 0.26);
-    playToneV2(ctx, 293.66, 'triangle', tStart + 0.110, 0.150, 0.28);
+  if(kind==='down'){
+    // Restored approved descending drop: Tone 1 (587.33Hz / 110ms) -> Tone 2 (293.66Hz / 150ms)
+    playToneV2(ctx,587.33,'triangle',tStart,0.110,0.26);
+    playToneV2(ctx,293.66,'triangle',tStart+0.110,0.150,0.28);
     return 0.260;
   }
-  if (kind === 'price_up') {
-    // Distinct Price Increase: Three consecutive short, sharp beeps at exact same pitch (1760.00 Hz / A6)
-    // 48 ms beep + 35 ms pause = 83 ms period, crisp attack, snappy decay, total ~214 ms
-    const freq = 1760.00;
-    const beepDur = 0.048;
-    const step = 0.083;
-    playToneV2(ctx, freq, 'triangle', tStart, beepDur, 0.25);
-    playToneV2(ctx, freq, 'triangle', tStart + step, beepDur, 0.25);
-    playToneV2(ctx, freq, 'triangle', tStart + step * 2, beepDur, 0.25);
-    return step * 2 + beepDur; // ~0.214s
+  if(kind==='price_up'){
+    // G4 to C5 chromatic rise: 50ms between note onsets, ~300ms total.
+    const notes=[392.00,415.30,440.00,466.16,493.88,523.25];
+    const step=0.050;
+    notes.forEach((freq,i)=>playToneV2(ctx,freq,'triangle',tStart+i*step,0.050,i===5?0.29:0.25));
+    return notes.length*step;
   }
-  if (kind === 'price_down') {
-    // Price Decrease: Lower priority subtle drop (G5 -> D5), attenuated volume
-    playToneV2(ctx, 784.00, 'triangle', tStart, 0.075, 0.16);
-    playToneV2(ctx, 587.33, 'triangle', tStart + 0.115, 0.100, 0.16);
-    return 0.215;
+  if(kind==='price_down'){
+    // Three descending chromatic notes, one octave above previous first note (784 Hz).
+    const base=1568.00,step=0.333,beepDur=0.100;
+    for(let i=0;i<3;i++)playToneV2(ctx,base*Math.pow(2,-i/12),'triangle',tStart+i*step,beepDur,0.16);
+    return step*2+beepDur;
   }
   return 0;
 }
 
-function playAlertSequence(kinds) {
-  if (!soundToggle.checked || !kinds || !kinds.length) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  
-  let t = Math.max(ctx.currentTime + 0.020, soundTail);
-  for (let i = 0; i < kinds.length; i++) {
-    const dur = scheduleAlert(ctx, kinds[i], t);
-    t += dur + 0.050; // brief gap between sequence components
-  }
-  soundTail = t + 0.030;
+function playAlertSequence(kinds){
+  if(!soundToggle.checked||!kinds||!kinds.length)return;
+  try{
+    const ctx=getAudioContext();
+    if(!ctx)return;
+    let t=Math.max(ctx.currentTime+0.020,soundTail);
+    for(let i=0;i<kinds.length;i++){
+      const dur=scheduleAlert(ctx,kinds[i],t);
+      t+=dur+0.050; // 50ms clear non-overlapping separation gap
+    }
+    soundTail=t+0.030;
+  }catch(err){console.warn('Audio alert error:',err);}
 }
 
-function soundEvent(kind) {
-  playAlertSequence([kind]);
+function soundEvent(kind){playAlertSequence([kind]);}
+
+// Visual alerts are UI-only; snapshots remain authoritative for liveIds.
+const visualAlerts=new Map();
+let visualBaseline=null,visualTimer=null;
+const VISUAL_MS=1500;
+function visualEnabled(){return localStorage.getItem('roadie-visual-alerts')!=='off';}
+function noteVisualChanges(){
+  const current=new Map([...liveIds].map(id=>[id,num(historic.get(id)?.price)]));
+  if(visualBaseline===null||isReconnecting){visualBaseline=current;visualAlerts.clear();return;}
+  const now=Date.now();
+  if(visualEnabled()){
+    for(const [id,price] of current){
+      if(!visualBaseline.has(id))visualAlerts.set(id,{kind:'new',until:now+VISUAL_MS});
+      else if(price!=null&&visualBaseline.get(id)!=null&&price!==visualBaseline.get(id))
+        visualAlerts.set(id,{kind:price>visualBaseline.get(id)?'price-up':'price-down',until:now+VISUAL_MS});
+    }
+    for(const id of visualBaseline.keys())
+      if(!current.has(id))visualAlerts.set(id,{kind:'gone',until:now+VISUAL_MS});
+  }else visualAlerts.clear();
+  visualBaseline=current;
+  if(visualTimer)clearTimeout(visualTimer);
+  visualTimer=setTimeout(()=>{visualTimer=null;for(const [id,v] of visualAlerts)if(v.until<=Date.now())visualAlerts.delete(id);render();},VISUAL_MS+25);
 }
-
-function notifyLiveChanges() {
-  const current = new Map([...liveIds].map(id => [id, num(historic.get(id)?.price)]));
-  if (soundBaseline === null) {
-    soundBaseline = current;
-    return;
+function visualKind(id){const v=visualAlerts.get(id);return visualEnabled()&&v&&v.until>Date.now()?v.kind:'';}
+function applyVisualAnimations(){
+  if(mode!=='now'||!visualEnabled())return;
+  for(const [id,v] of visualAlerts){
+    if(v.until<=Date.now())continue;
+    const remaining=v.until-Date.now();
+    const target=v.kind.startsWith('price-')?'[data-visual-price]':'[data-id]';
+    for(const node of document.querySelectorAll('#rows tr[data-id], #mobile-cards .mobile-card[data-id]')){
+      if(node.dataset.id!==id)continue;
+      const el=v.kind.startsWith('price-')?node.querySelector('[data-visual-price]'):node;
+      if(!el)continue;
+      const color=v.kind==='new'||v.kind==='price-up'?'rgba(43,215,126,.70)':'rgba(240,72,72,.70)';
+      // Re-rendering must not restart a completed animation.
+      const elapsed=VISUAL_MS-remaining;
+      const frames=Array.from({length:7},(_,i)=>({offset:i/6,backgroundColor:i%2===0?'transparent':color}));
+      el.animate(frames,{duration:VISUAL_MS,delay:-elapsed,iterations:1});
+    }
   }
-  if (isReconnecting) {
-    soundBaseline = current;
-    isReconnecting = false;
-    return;
-  }
+}
+function notifyLiveChanges(){
+  const current=new Map([...liveIds].map(id=>[id,num(historic.get(id)?.price)]));
+  if(soundBaseline===null){soundBaseline=current;return;}
+  if(isReconnecting){soundBaseline=current;isReconnecting=false;return;}
 
-  const sequence = [];
-  
+  const sequence=[];
+
   // 1. Order count changes
-  if (current.size > soundBaseline.size) {
+  if(current.size>soundBaseline.size){
     sequence.push('up');
-  } else if (current.size < soundBaseline.size) {
-    sequence.push('down');
   }
 
   // 2. Exact price changes on existing live orders
-  let hasPriceUp = false;
-  let hasPriceDown = false;
-  for (const [id, price] of current) {
-    if (soundBaseline.has(id) && price != null) {
-      const oldPrice = soundBaseline.get(id);
-      if (oldPrice != null) {
-        if (price > oldPrice) hasPriceUp = true;
-        else if (price < oldPrice) hasPriceDown = true;
+  let hasPriceUp=false;
+  for(const [id,price] of current){
+    if(soundBaseline.has(id)&&price!=null){
+      const oldPrice=soundBaseline.get(id);
+      if(oldPrice!=null){
+        if(price>oldPrice)hasPriceUp=true;
       }
     }
   }
 
-  if (hasPriceUp) {
+  if(hasPriceUp){
     sequence.push('price_up');
-  } else if (hasPriceDown) {
-    sequence.push('price_down');
   }
 
-  if (sequence.length > 0) {
+  if(sequence.length>0){
     playAlertSequence(sequence);
   }
 
-  soundBaseline = current;
+  soundBaseline=current;
 }
 
-$('test-sound')?.addEventListener('click', () => {
-  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
-  playAlertSequence(['up', 'down', 'price_up', 'price_down']);
+$('test-sound')?.addEventListener('click',()=>{
+  if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'));}
+  playAlertSequence(['up','price_up']);
 });
-$('test-sound-up')?.addEventListener('click', () => {
-  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+$('test-sound-up')?.addEventListener('click',()=>{
+  if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'));}
   soundEvent('up');
 });
-$('test-sound-down')?.addEventListener('click', () => {
-  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+$('test-sound-down')?.addEventListener('click',()=>{
+  if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'));}
   soundEvent('down');
 });
-$('test-sound-price-up')?.addEventListener('click', () => {
-  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+$('test-sound-price-up')?.addEventListener('click',()=>{
+  if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'));}
   soundEvent('price_up');
 });
-$('test-sound-price-down')?.addEventListener('click', () => {
-  if (!soundToggle.checked) { soundToggle.checked = true; soundToggle.dispatchEvent(new Event('change')); }
+$('test-sound-price-down')?.addEventListener('click',()=>{
+  if(!soundToggle.checked){soundToggle.checked=true;soundToggle.dispatchEvent(new Event('change'));}
   soundEvent('price_down');
 });
-
 function ingest(message){
   if(!message||typeof message!=='object')return;
   const type=message.type||'snapshot';
@@ -793,8 +1237,9 @@ function ingest(message){
         price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
         last_seen:at});
     }
+    // LIVE is exactly the IDs in the most recently received successful snapshot.
     liveIds=demo?new Set():nextIds;
-    if(!demo)notifyLiveChanges();else soundBaseline=null;
+    if(!demo){noteVisualChanges();notifyLiveChanges();}else{soundBaseline=null;visualBaseline=null;visualAlerts.clear();}
     lastSnapshot=Date.parse(at)||Date.now();
     lastSearchTime=Date.parse(message.last_search_at||at)||lastSnapshot;
     lastSearchAt=message.last_search_at||at;
@@ -814,11 +1259,10 @@ function ingest(message){
       first_price:num(g.first_price)??old?.first_price??g.price,
       price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
       last_seen:at});
-    liveIds.add(g.id);notifyLiveChanges();render();return;
+    liveIds.add(g.id);noteVisualChanges();notifyLiveChanges();render();return;
   }
-  if(type==='remove'&&message.id!=null){liveIds.delete(String(message.id));notifyLiveChanges();render()}
+  if(type==='remove'&&message.id!=null){liveIds.delete(String(message.id));noteVisualChanges();notifyLiveChanges();render()}
 }
-
 const compactCargo=n=>{
   const v=num(n);
   if(v==null)return '—';
@@ -845,6 +1289,14 @@ const fmtItemsVolume=g=>{
       :'<span class="small" title="Incomplete item data: missing dimensions or quantity">Incomplete</span>';
   }
   return v!=null?v.toFixed(3):'—';
+};
+const fmtFit=g=>{
+  const status=String(g.fit_status||'').toUpperCase();
+  const estimated=g.is_estimated_fit?' (estimated)':'';
+  if(status==='EASY_FIT')return '<span class="fit-badge fit-easy" title="Easy fit'+estimated+'">FIT</span>';
+  if(status==='TIGHT_FIT')return '<span class="fit-badge fit-tight" title="Tight fit'+estimated+'">TIGHT</span>';
+  if(status==='NOT_FIT')return '<span class="fit-badge fit-not" title="Not a fit'+estimated+'">NOT FIT</span>';
+  return '<span class="small" title="Fit check unavailable">—</span>';
 };
 const COLS=[
   ['price','Payout',g=>cash(g.price),'money'],
@@ -891,6 +1343,16 @@ function columnPanel(){
   $('reset-columns').onclick=()=>{prefs={order:[...DEFAULT_ORDER],hidden:[]};savePrefs();columnPanel();render()};
 }
 $('columns-toggle').onclick=()=>{$('columns-panel').classList.toggle('open');columnPanel()};
+document.addEventListener('pointerdown',e=>{
+  const panel=$('columns-panel');
+  if(panel.classList.contains('open')&&!e.target.closest('#columns-wrap')){
+    panel.classList.remove('open');
+  }
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')$('columns-panel').classList.remove('open');
+});
+
 
 // roadie-price-chart-v3
 let openPriceChartId=null;
@@ -921,6 +1383,7 @@ function priceChartHTML(g){
   if(Number.isFinite(last))times.push(last);
   const dataStart=Math.min(...times),dataEnd=Math.max(...times);
   const W=600,H=255,L=65,R=20,T=18,B=56;
+  // Human-friendly axis steps: clock-aligned time ticks and round dollar values.
   const niceStep=(range,target)=>{
     const raw=Math.max(range/target,Number.EPSILON);
     const magnitude=10**Math.floor(Math.log10(raw));
@@ -946,7 +1409,16 @@ function priceChartHTML(g){
     for(const p of changes){if(p.time>t)break;value=p.price;}
     return value;
   };
+  // The rounded time-axis boundary is not an observation.
+  // If presence events exist, begin only at the first actual PRESENT event.
+  // For legacy records without presence events, fall back to first_seen.
+  const firstObserved=Number.isFinite(first)?first:changes[0].time;
+  // Never invent continuous visibility when HISTORY has no presence events.
+  // A missing presence_history means the server has not supplied the data.
   const transitions=presence;
+  // Build independent visible runs. Never connect across an ABSENT interval.
+  // A payout update during absence changes the value of the next run, but
+  // cannot draw a price jump while the gig is not visible.
   const events=[
     ...transitions.map(e=>({...e,kind:'presence'})),
     ...changes.slice(1).map(e=>({...e,kind:'price'}))
@@ -960,11 +1432,14 @@ function priceChartHTML(g){
   for(const e of events){
     if(e.kind==='presence'){
       if(e.present){
+        // A new appearance is always a separate run at the current price.
         active=true;
         lastTime=e.time;
         lastPrice=priceAt(e.time);
       }else{
         if(active){
+          // The first ABSENT snapshot is later than the last confirmed
+          // PRESENT snapshot. Stop at the latter, leaving a genuine gap.
           const end=Number.isFinite(e.lastPresentTime)
             ?Math.max(lastTime,Math.min(e.time,e.lastPresentTime)):e.time;
           line(lastTime,end,lastPrice);
@@ -986,6 +1461,7 @@ function priceChartHTML(g){
     }
   }
   if(active&&lastTime!==null){
+    // Never draw into the rounded time-axis margin.
     const confirmed=Number.isFinite(last)?last:dataEnd;
     line(lastTime,Math.max(lastTime,confirmed),lastPrice);
   }
@@ -1080,20 +1556,41 @@ function renderPriceChart(){
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&openPriceChartId)closePriceChart();});
 window.addEventListener('resize',()=>{if(openPriceChartId)renderPriceChart();});
 
-// STRICT READ-ONLY SECURITY INVARIANT: Offer submission is restricted to primary device.
+// Stage 1: per-gig, read-only Samsung preflight. This never submits an offer.
+const submitChecks=new Map();
 function submitButton(g){
-  const id=String(g.id);
-  return '<button type="button" class="submit-placeholder view-only" data-submit-id="'+esc(id)+'" disabled '+
-    'title="View-Only Mode: Offer submission is restricted to local primary device">VIEW ONLY</button>';
+  const id=String(g.id),state=submitChecks.get(id);
+  const isLive=mode==='now'&&liveIds.has(id);
+  const label=state?.busy?'Working…':state?.status==='OFFER_PENDING'?'Pending ✓':state?.offer?state.status:state?.status==='OK'?'Ready ✓':'Submit';
+  const disabled=!isLive||state?.busy||!socket||socket.readyState!==WebSocket.OPEN;
+  return '<button type="button" class="submit-placeholder" data-submit-id="'+esc(id)+'" '+(disabled?'disabled ':'')+
+    'title="Read-only Samsung preflight">'+label+'</button>'+
+    '<button type="button" class="submit-placeholder" data-submit-offer-id="'+esc(id)+'" '+(disabled?'disabled ':'')+
+    'title="Authorized real Submit — token and confirmation required">Offer…</button>';
 }
-function handleViewOnlyNotice(event){
-  const button=event.target.closest('button[data-submit-id], button.view-only');
+function handleSubmitPreflight(event){
+  const button=event.target.closest('button[data-submit-id],button[data-submit-offer-id]');
   if(!button)return;
   event.stopPropagation();
-  showToast('🔒 View-Only Mode: Offer submissions are restricted to the local primary device.');
+  const id=button.dataset.submitId||button.dataset.submitOfferId;
+  if(mode!=='now'||!liveIds.has(id)||!/^[1-9][0-9]{0,17}$/.test(id))return;
+  if(!socket||socket.readyState!==WebSocket.OPEN)return;
+  if(submitChecks.get(id)?.busy)return;
+  submitChecks.set(id,{busy:true});
+  button.disabled=true;button.textContent='Checking…';
+  const wantsOffer=button.hasAttribute('data-submit-offer-id')||event.shiftKey;
+  if(wantsOffer){
+    const token=window.prompt('Submit authorization token (never saved):');
+    if(!token){submitChecks.delete(id);render();return;}
+    if(!window.confirm('Send ONE Roadie offer for Gig '+id+'? This is a real Submit.')){submitChecks.delete(id);render();return;}
+    socket.send(JSON.stringify({type:'submit_offer',consolidation_id:id,token}));
+    $('check-submit-result').textContent='Submit requested for Gig '+id+' · awaiting Roadie result';
+    return;
+  }
+  socket.send(JSON.stringify({type:'submit_check',consolidation_id:id}));
+  $('check-submit-result').textContent='Samsung preflight for Gig '+id+'… no offer sent';
 }
-document.addEventListener('click',handleViewOnlyNotice);
-
+document.addEventListener('click',handleSubmitPreflight);
 function renderMobileCards(arr){
   const root=$('mobile-cards');
   if(!arr.length){
@@ -1112,7 +1609,7 @@ function renderMobileCards(arr){
     ].filter(Boolean).map(v=>v.includes('aria-label="Direction')?v:esc(v)).join('<span aria-hidden="true">·</span>');
     const change=delta==null||delta===0?'':('<div class="mobile-delta '+(delta>0?'up':'down')+'">'+(delta>0?'↑ +':'↓ −')+cash(Math.abs(delta))+' since first</div>');
     return '<div class="mobile-offer"><button type="button" class="mobile-card '+css+'" data-id="'+esc(g.id)+'">'+
-      '<div class="mobile-top"><span class="mobile-price">'+cash(g.price)+'</span><span class="mobile-hour">'+wholeCash(g.hour)+'/hr</span>'+fmtFit(g)+'</div>'+
+      '<div class="mobile-top"><span class="mobile-price" data-visual-price>'+cash(g.price)+'</span><span class="mobile-hour">'+wholeCash(g.hour)+'/hr</span>'+fmtFit(g)+'</div>'+
       '<div class="mobile-route">'+route+'</div><div class="mobile-meta">'+meta+'</div>'+change+'</button>'+submitButton(g)+'</div>';
   }).join('');
   root.querySelectorAll('.mobile-card').forEach(card=>{
@@ -1120,6 +1617,7 @@ function renderMobileCards(arr){
   });
   renderPriceChart();
 }
+
 
 let selectedDay=null;
 const roadieDay=t=>{
@@ -1170,13 +1668,42 @@ function renderDayNav(){
   };
 }
 
+// Diagnostic only. Snapshot the first visible order ID at click time.
+let firstVisibleSubmitId=null;
+$('check-submit').onclick=()=>{
+  if(mode!=='now')return;
+  const frozenId=String(firstVisibleSubmitId??'77426567');
+  if(!socket||socket.readyState!==WebSocket.OPEN){
+    $('check-submit-result').textContent='Bridge offline · nothing sent';return;
+  }
+  $('check-submit-result').textContent='Checking Samsung for ID '+frozenId+'…';
+  socket.send(JSON.stringify({type:'submit_check',consolidation_id:frozenId}));
+};
+let comfortSortEnabled=false;
+try { comfortSortEnabled=localStorage.getItem('roadie_comfort_sort_10_v1')==='true'; } catch(e) {}
+function updateComfortSortButton(){
+  const button=$('comfort-sort');
+  button.textContent='Comfort 10%: '+(comfortSortEnabled?'ON':'OFF');
+  button.setAttribute('aria-pressed',String(comfortSortEnabled));
+  button.classList.toggle('active',comfortSortEnabled);
+}
+$('comfort-sort').onclick=()=>{
+  comfortSortEnabled=!comfortSortEnabled;
+  try { localStorage.setItem('roadie_comfort_sort_10_v1',String(comfortSortEnabled)); } catch(e) {}
+  updateComfortSortButton();
+  render();
+};
+updateComfortSortButton();
+let excludeNotFit=false;
+try{excludeNotFit=localStorage.getItem('roadie_exclude_not_fit_v1')==='true'}catch(e){}
 function render(){
   renderDayNav();
   const minPayoutInput=$('min-payout').value.trim();
   const minPayout=minPayoutInput===''?null:Number(minPayoutInput);
   const arr=[...historic.values()].filter(g=>
-    (mode==='now'?liveIds.has(g.id):roadieDay(g.first_seen??g.last_seen)===selectedDay) &&
-    (minPayout===null||!Number.isFinite(minPayout)||(g.price!=null&&Number(g.price)>=minPayout))
+    (mode==='now'?(liveIds.has(g.id)||visualKind(g.id)==='gone'):roadieDay(g.first_seen??g.last_seen)===selectedDay) &&
+    (minPayout===null||!Number.isFinite(minPayout)||(g.price!=null&&Number(g.price)>=minPayout)) &&
+    (!excludeNotFit||g.fit_status!=='NOT_FIT')
   );
 
   // roadie-dual-sort-v1
@@ -1190,11 +1717,35 @@ function render(){
       ? Math.max(0,last-first) : null;
   }
 
+  function headerSortKey(col,current) {
+    const keys={id:['gig_id_desc','gig_id_asc'],price:['price','price_asc'],hour:['hour','hour_asc'],driving_time:['driving_time','driving_time_asc'],total_time:['total_time','total_time_asc'],miles:['miles_desc','miles'],city:['city_desc','city'],first:['first_desc','first_asc'],last:['last_desc','last_asc'],age:['observed_desc','observed_asc'],pickup:['pickup_desc','pickup_asc'],weight:['weight_desc','weight_asc'],volume:['volume_desc','volume_asc'],items_weight:['items_weight_desc','items_weight_asc'],items_volume:['items_volume_desc','items_volume_asc'],delta:['delta_desc','delta_asc'],deliveries:['deliveries_desc','deliveries_asc']};
+    const pair=keys[col];return pair?(current===pair[0]?pair[1]:pair[0]):null;
+  }
+
   function compare(a,b,key) {
     if(key==='none') return 0;
-    if(key==='city')
-      return String(a.city??'').localeCompare(String(b.city??''));
+    if(key==='gig_id_asc'||key==='gig_id_desc') {
+      const ai=String(a.id??''), bi=String(b.id??'');
+      const cmp=ai.localeCompare(bi,undefined,{numeric:true,sensitivity:'base'});
+      return key==='gig_id_asc'?cmp:-cmp;
+    }
+    if(key==='fit'||key==='fit_asc'||key==='fit_desc') {
+      const rank={EASY_FIT:0,TIGHT_FIT:1,NOT_FIT:2};
+      const av=rank[a.fit_status]??99,bv=rank[b.fit_status]??99;
+      return key.endsWith('_asc')?av-bv:bv-av;
+    }
+    if(key==='city'||key==='city_desc'||key==='pickup_asc'||key==='pickup_desc') {
+      const field=key.startsWith('pickup')?'pickup_name':'city';
+      const cmp=String(a[field]??'').localeCompare(String(b[field]??''));
+      return key.endsWith('_desc')?-cmp:cmp;
+    }
+    if(['first_desc','first_asc','last_desc','last_asc'].includes(key)) {
+      const field=key.startsWith('first')?'first_seen':'last_seen';
+      const av=Date.parse(a[field])||0,bv=Date.parse(b[field])||0;
+      return key.endsWith('_asc')?av-bv:bv-av;
+    }
 
+    if(key==='miles_desc') return (Number(b.miles)||0)-(Number(a.miles)||0);
     if(key==='newest')
       return (Date.parse(b.first_seen)||0)-(Date.parse(a.first_seen)||0);
 
@@ -1206,31 +1757,140 @@ function render(){
     }
 
     const ascending=key.endsWith('_asc')||key==='miles';
-    const field=key.replace(/_asc$/,'');
-    const av=Number(a[field]),bv=Number(b[field]);
-    const aValid=a[field]!=null&&Number.isFinite(av);
-    const bValid=b[field]!=null&&Number.isFinite(bv);
+    const field=key.replace(/_(asc|desc)$/,'');
+    const value=g=>{
+      if(field==='delta')return Number(g.price)-Number(g.first_price);
+      if(field==='weight')return Number(g.weight);
+      if(field==='volume')return Number(g.volume);
+      if(field==='driving_time')return Number(g.estimated_drive_time??g.driving_time);
+      if(field==='total_time')return Number(g.total_route_minutes??g.total_time??g.minutes);
+      if(field==='deliveries')return Number(g.deliveries);
+      return Number(g[field]);
+    };
+    const av=value(a),bv=value(b);
+    const has=g=>field==='delta'?(g.price!=null&&g.first_price!=null):field==='driving_time'?(g.estimated_drive_time??g.driving_time)!=null:field==='total_time'?(g.total_route_minutes??g.total_time??g.minutes)!=null:g[field]!=null;
+    const aValid=has(a)&&Number.isFinite(av);
+    const bValid=has(b)&&Number.isFinite(bv);
 
     if(!aValid) return bValid?1:0;
     if(!bValid) return -1;
     return ascending?av-bv:bv-av;
   }
 
-  arr.sort((a,b)=>
-    compare(a,b,sort) ||
-    (secondary!==sort?compare(a,b,secondary):0)
-  );
+  if (comfortSortEnabled) {
+    // Final-only ordering. No changes to membership, filtering, raw IDs, or Submit bindings.
+    const remaining = [...arr];
+    const ordered = [];
+    const rate = g => Number.isFinite(Number(g.hour)) && Number(g.hour) >= 0 ? Number(g.hour) : -1;
+    const stops = g => {
+      const value = g.delivery_points ?? g.deliveries;
+      return value != null && Number.isFinite(Number(value)) && Number(value) >= 0
+        ? Number(value) : Infinity;
+    };
+    while (remaining.length) {
+      const maxRate = Math.max(...remaining.map(rate));
+      const threshold = maxRate < 0 ? -1 : maxRate * 0.90;
+      const band = remaining.filter(g => rate(g) >= threshold);
+      band.sort((a,b) =>
+        stops(a)-stops(b) ||
+        rate(b)-rate(a) ||
+        (Number(b.price)||0)-(Number(a.price)||0) ||
+        String(a.id).localeCompare(String(b.id),undefined,{numeric:true})
+      );
+      ordered.push(...band);
+      const ids = new Set(band.map(g => String(g.id)));
+      for (let i=remaining.length-1;i>=0;i--)
+        if (ids.has(String(remaining[i].id))) remaining.splice(i,1);
+    }
+    arr.splice(0,arr.length,...ordered);
+  } else {
+    arr.sort((a,b)=>
+      compare(a,b,sort) ||
+      (secondary!==sort?compare(a,b,secondary):0)
+    );
+  }
+  firstVisibleSubmitId=mode==='now'&&arr.length?arr[0].id:null;
+  $('check-submit').disabled=mode!=='now';
   $('count').textContent=arr.length+' '+(mode==='now'?'live':'historical')+' gigs';
+  refreshSnapshotMonitor();
   renderMobileCards(arr);
   const cols=columns();
-  $('headers').innerHTML=cols.map(c=>'<th draggable="true" data-col="'+c[0]+'" title="Drag to rearrange">'+esc(c[1])+'</th>').join('')+'<th>Submit (View-Only)</th>';
-  let dragged=null;
-  $('headers').querySelectorAll('th').forEach(th=>{
-    th.ondragstart=e=>{dragged=th.dataset.col;e.dataTransfer.setData('text/plain',dragged);e.dataTransfer.effectAllowed='move'};
-    th.ondragover=e=>{e.preventDefault();th.classList.add('dragover')};
-    th.ondragleave=()=>th.classList.remove('dragover');
-    th.ondrop=e=>{e.preventDefault();th.classList.remove('dragover');const from=dragged,to=th.dataset.col;if(!from||from===to)return;const order=prefs.order.filter(k=>k!==from);order.splice(order.indexOf(to),0,from);prefs.order=order;savePrefs();columnPanel();render()};
-    th.ondragend=()=>{dragged=null;document.querySelectorAll('th.dragover').forEach(x=>x.classList.remove('dragover'))};
+  // Header gesture: short click sorts; hold >=400 ms then move reorders.
+  const headerLayout=JSON.stringify(cols.map(c=>c[0]));
+  const headerChanged=$('headers').dataset.layout!==headerLayout;
+  if(headerChanged){
+    $('headers').innerHTML=cols.map(c=>'<th data-col="'+c[0]+'" title="'+(c[0]==='fit'?'Click to show/hide NOT_FIT · hold to move':'Click to sort · hold to move')+'">'+esc(c[1])+(c[0]==='fit'&&excludeNotFit?' ✓':'')+'</th>').join('')+'<th>Submit</th>';
+    $('headers').dataset.layout=headerLayout;
+  }
+  // Short tap/click sorts. Hold for 400 ms then drag to another column to reorder.
+  // No extra indicators or handles; supports mouse, touch and pen.
+  const sortKeyForColumn={
+    price:['price','price_asc'],hour:['hour','hour_asc'],
+    pickup:['pickup_asc','pickup_desc'],fit:['fit','fit_asc'],
+    driving_time:['driving_time','driving_time_asc'],
+    total_time:['total_time','total_time_asc'],
+    miles:['miles_desc','miles'],city:['city','city_desc'],
+    id:['gig_id_desc','gig_id_asc'],
+    first:['first_desc','first_asc'],last:['last_desc','last_asc'],
+    age:['observed_desc','observed_asc'],delta:['delta_desc','delta_asc'],
+    deliveries:['deliveries_desc','deliveries_asc'],
+    weight:['weight_desc','weight_asc'],items_weight:['items_weight_desc','items_weight_asc'],
+    volume:['volume_desc','volume_asc'],items_volume:['items_volume_desc','items_volume_asc']
+  };
+  if(!headerChanged){const fitHeader=$('headers').querySelector('th[data-col="fit"]');if(fitHeader){fitHeader.textContent=columns().find(c=>c[0]==='fit')[1]+(excludeNotFit?' ✓':'');fitHeader.title='Click to show/hide NOT_FIT · hold to move';}}
+  if(headerChanged)$('headers').querySelectorAll('th[data-col]').forEach(th=>{
+    let holdTimer=null, held=false, moved=false, startX=0, startY=0, pointerId=null;
+    const clear=()=>{if(holdTimer!==null)clearTimeout(holdTimer);holdTimer=null;th.classList.remove('dragover')};
+    th.onpointerdown=e=>{
+      if(e.button!==0&&e.pointerType==='mouse')return;
+      pointerId=e.pointerId;held=false;moved=false;startX=e.clientX;startY=e.clientY;
+      clear();document.addEventListener('pointerup',th.onpointerup,true);
+      document.addEventListener('pointercancel',th.onpointercancel,true);
+      holdTimer=setTimeout(()=>{held=true;holdTimer=null;th.classList.add('dragover')},400);
+    };
+    th.onpointermove=e=>{
+      if(pointerId!==e.pointerId)return;
+      if(Math.hypot(e.clientX-startX,e.clientY-startY)>10){
+        moved=true;
+        if(!held)clear();
+      }
+    };
+    th.onpointerup=e=>{
+      if(pointerId!==e.pointerId)return;
+      const wasHeld=held,wasMoved=moved,from=th.dataset.col;
+      const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('th[data-col]');
+      clear();pointerId=null;held=false;
+      document.removeEventListener('pointerup',th.onpointerup,true);
+      document.removeEventListener('pointercancel',th.onpointercancel,true);
+      if(wasHeld){
+        if(target&&target.dataset.col!==from){
+          const order=prefs.order.filter(k=>k!==from);
+          order.splice(order.indexOf(target.dataset.col),0,from);
+          prefs.order=order;savePrefs();columnPanel();render();
+        }
+        return;
+      }
+      if(wasMoved)return;
+      if(from==='fit'){
+        excludeNotFit=!excludeNotFit;
+        try{localStorage.setItem('roadie_exclude_not_fit_v1',String(excludeNotFit))}catch(e){}
+        render();return;
+      }
+      const keys=sortKeyForColumn[from];
+      if(!keys)return;
+      const primary=$('sort'),secondary=$('sort-secondary');
+      const next=primary.value===keys[0]?keys[1]:keys[0];
+      // Some columns have no matching dropdown option: keep dropdowns authoritative.
+      if(![...primary.options].some(o=>o.value===next))return;
+      primary.value=next;
+      if(secondary.value===next)secondary.value='none';
+      saveSort();render();
+    };
+    th.onpointercancel=()=>{clear();pointerId=null;held=false;
+      document.removeEventListener('pointerup',th.onpointerup,true);
+      document.removeEventListener('pointercancel',th.onpointercancel,true);
+    };
+    th.oncontextmenu=e=>{if(held)e.preventDefault()};
   });
   $('rows').innerHTML=arr.map(g=>{
     const delta=g.price!=null&&g.first_price!=null?g.price-g.first_price:null;
@@ -1238,19 +1898,13 @@ function render(){
     return '<tr class="'+css+'" data-id="'+esc(g.id)+'">'+cols.map(c=>{
       const klass=c[0]==='delta'?(delta>0?'up':delta<0?'down':''):c[3];
       const attr='';
-      return '<td class="'+klass+'"'+attr+'>'+c[2](g)+'</td>'
+      return '<td class="'+klass+'"'+(c[0]==='price'?' data-visual-price':'')+attr+'>'+c[2](g)+'</td>'
     }).join('')+'<td>'+submitButton(g)+'</td></tr>'
   }).join('');
   $('rows').querySelectorAll('tr[data-id]').forEach(tr=>{
-    tr.onclick=()=>{
-      selected=tr.dataset.id;
-      const rec=historic.get(selected);
-      if(rec){
-        $('detail').textContent=`Gig ${rec.id} · Pickup: ${rec.pickup_name||'Unknown'} · Destination: ${rec.city||'Unknown'} · Payout: ${cash(rec.price)} · Rate: ${wholeCash(rec.hour)}/hr · Distance: ${whole(rec.miles)} mi · Deliveries: ${str(rec.deliveries)} · First: ${rec.first_seen?new Date(rec.first_seen).toLocaleTimeString():'—'} · Last: ${rec.last_seen?new Date(rec.last_seen).toLocaleTimeString():'—'}`;
-      }
-      togglePriceChart(tr.dataset.id);
-    };
+    tr.onclick=()=>togglePriceChart(tr.dataset.id);
   });
+  applyVisualAnimations();
   renderPriceChart();
 }
 
@@ -1299,116 +1953,65 @@ function connect(){
   const url=$('endpoint').value.trim();
   if(!/^wss?:\/\//.test(url)){$('status').textContent='Enter ws:// or wss:// endpoint';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();return}
   const ws=new WebSocket(url);socket=ws;
-  telemetryConnection('connecting');
+  telemetryConnection('connecting');updateLiveHealth();
   $('status').textContent='Connecting…';
   if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();
-  ws.onopen=()=>{if(socket===ws){telemetryConnection('online');$('status').textContent='Connected · waiting for snapshot';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();if(mode==='history')ws.send(JSON.stringify({type:'history_request'}))}};
+  ws.onopen=()=>{
+    if(socket===ws){
+      telemetryConnection('online');
+      $('status').textContent='Connected · waiting for snapshot';
+      if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();
+      if(mode==='history')ws.send(JSON.stringify({type:'history_request'}));
+      try {
+        const pending = localStorage.getItem('roadie_active_mismatch');
+        if (pending) {
+          const evt = JSON.parse(pending);
+          if (evt && evt.event_id) {
+            evt.recovery_status = 'INCOMPLETE';
+            evt.incomplete_reason = evt.incomplete_reason || 'UNEXPECTED_RESTART';
+            evt.end_at = evt.end_at || new Date().toISOString();
+            ws.send(JSON.stringify({ type: 'save_mismatch_event', event: evt }));
+            localStorage.removeItem('roadie_active_mismatch');
+          }
+        }
+      } catch(e) {}
+      ws.send(JSON.stringify({ type: 'get_mismatch_events', limit: 50 }));
+    }
+  };
   ws.onmessage=e=>{
     if(socket!==ws)return;
     try{
       const msg=JSON.parse(e.data);
-      if(msg.type==='latency_pong'){
-        if(msg.nonce===latencyNonce){
-          const elapsed=performance.now()-latencyStart;
-          $('latency-result').textContent=elapsed.toFixed(1)+' ms · Gateway RTT';
-          $('latency-test').style.background='#176b43';
+      if(msg.type==='mismatch_events_history'){
+        if(Array.isArray(msg.events)){
+          const existingIds=new Set(msg.events.map(e=>e.event_id));
+          const localUnsaved=recordedMismatchEvents.filter(e=>!existingIds.has(e.event_id));
+          recordedMismatchEvents=[...localUnsaved,...msg.events];
+          renderMismatchTable();
         }
+        return;
+      }
+      if(msg.type==='mismatch_event_saved'){
         return;
       }
       if(msg.type==='action_blocked'){
-        showToast('🔒 '+String(msg.message||'View-Only: Mutation action blocked by server gateway.'));
-        return;
-      }
-      if(msg.type==='heartbeat'){
-        telemetryData();
-        const at=msg.scan_at||new Date().toISOString();
-        lastSearchAt=at;
-        lastSearchTime=Date.parse(at)||Date.now();
-        if(msg.scan_id!=null){lastSearchScanId=msg.scan_id;noteHealthScan(msg.scan_id)}
-        for(const id of liveIds){
-          const rec=historic.get(id);
-          if(rec){rec.last_seen=at;}
-        }
-        if(lastSnapshot>0&&mode==='now'){
-          const searchAge=Math.max(0,Math.round((Date.now()-lastSearchTime)/1000));
-          $('status').textContent='Snapshot '+new Date(lastSnapshot).toLocaleTimeString()+' · '+(liveIds?liveIds.size:0)+' live · SEARCH active ('+searchAge+'s ago)';
-        }
-        if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();
+        submitChecks.forEach((val, id) => { if(val.busy) submitChecks.delete(id); });
+        $('check-submit-result').textContent=(msg.action ? msg.action + ': ' : '') + (msg.message || 'Action blocked by gateway');
         render();
         return;
       }
-      if(msg.type==='snapshot'||msg.type==='upsert'||msg.type==='remove'){
-        telemetryData();
-        lastSnapshot=Date.now();
-        if(msg.scan_id!=null){lastScanId=msg.scan_id;noteHealthScan(msg.scan_id)}
-        if(msg.scan_at!=null)lastScanAt=msg.scan_at;
-        const at=msg.scan_at||new Date().toISOString();
-        lastSearchAt=msg.last_search_at||at;
-        lastSearchTime=Date.parse(lastSearchAt)||Date.now();
-        if(msg.last_search_scan_id!=null)lastSearchScanId=msg.last_search_scan_id;
-        else if(msg.scan_id!=null)lastSearchScanId=msg.scan_id;
-        if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();
-      }
-      ingest(msg);
-    }catch(err){
-      $('status').textContent='Invalid message: '+err.message;
-    }
-  };
-  ws.onclose=()=>{if(socket!==ws)return;isReconnecting=true;telemetryConnection('offline');$('status').textContent='Disconnected · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();reconnectTimer=setTimeout(connect,2000)};
-  ws.onerror=()=>{if(socket===ws){telemetryConnection('offline');$('status').textContent='WebSocket error · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();}};
+      if(msg.type==='snapshot_telemetry'){if(msg.snapshot_id!=null&&Array.isArray(msg.gig_ids)){const snapId=Number(msg.snapshot_id);if(!latestDbSnapshot||snapId>=Number(latestDbSnapshot.snapshot_id)){const rawIds=Array.isArray(msg.gig_ids)?msg.gig_ids:[];const deduped=[...new Set(rawIds.map(id=>String(id).trim()).filter(Boolean))];latestDbSnapshot={type:'snapshot_telemetry',snapshot_id:snapId,scan_at:msg.scan_at,source:msg.source||'UNKNOWN',count:deduped.length,gig_ids:deduped};refreshSnapshotMonitor();}}return;}if(msg.type==='submit_offer_result'){const id=String(msg.consolidation_id);submitChecks.set(id,{status:String(msg.status),offer:true});$('check-submit-result').textContent='Gig '+id+' · Submit: '+String(msg.status);render();return;}if(msg.type==='submit_check_result'){const id=String(msg.consolidation_id);submitChecks.set(id,{status:String(msg.status)});$('check-submit-result').textContent='Gig '+id+' · '+String(msg.status)+' · '+String(msg.elapsed_ms??'?')+' ms · no offer sent';render();return;}if(msg.type==='latency_pong'){if(msg.nonce===latencyNonce){const elapsed=performance.now()-latencyStart;$('latency-result').textContent=elapsed.toFixed(1)+' ms · Bridge RTT';$('latency-test').style.background='#176b43';}return;}if(msg.type==='heartbeat'){telemetryData();const at=msg.scan_at||new Date().toISOString();lastSearchAt=at;lastSearchTime=Date.parse(at)||Date.now();if(msg.scan_id!=null){lastSearchScanId=msg.scan_id;noteHealthScan(msg.scan_id)}for(const id of liveIds){const rec=historic.get(id);if(rec){rec.last_seen=at;}}if(lastSnapshot>0&&mode==='now'){const searchAge=Math.max(0,Math.round((Date.now()-lastSearchTime)/1000));$('status').textContent='Snapshot '+new Date(lastSnapshot).toLocaleTimeString()+' · '+(liveIds?liveIds.size:0)+' live · SEARCH active ('+searchAge+'s ago)';}if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();render();return;}if(msg.type==='snapshot'||msg.type==='upsert'||msg.type==='remove'){telemetryData();lastSnapshot=Date.now();if(msg.scan_id!=null){lastScanId=msg.scan_id;noteHealthScan(msg.scan_id)}if(msg.scan_at!=null)lastScanAt=msg.scan_at;const at=msg.scan_at||new Date().toISOString();lastSearchAt=msg.last_search_at||at;lastSearchTime=Date.parse(lastSearchAt)||Date.now();if(msg.last_search_scan_id!=null)lastSearchScanId=msg.last_search_scan_id;else if(msg.scan_id!=null)lastSearchScanId=msg.scan_id;if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();}ingest(msg)}catch(err){$('status').textContent='Invalid message: '+err.message}};
+  ws.onclose=()=>{if(socket!==ws)return;isReconnecting=true;telemetryConnection('offline');updateLiveHealth();$('status').textContent='Disconnected · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();reconnectTimer=setTimeout(connect,2000)};
+  ws.onerror=()=>{if(socket===ws){telemetryConnection('offline');updateLiveHealth();$('status').textContent='WebSocket error · reconnecting…';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();}};
 }
 let latencyNonce=null,latencyStart=0;
-$('latency-test').addEventListener('click',()=>{
-  if(!socket||socket.readyState!==WebSocket.OPEN){
-    $('latency-result').textContent='Gateway offline';
-    return;
-  }
-  latencyNonce=String(Date.now())+'-'+Math.random();
-  latencyStart=performance.now();
-  $('latency-test').style.background='';
-  $('latency-result').textContent='Measuring…';
-  socket.send(JSON.stringify({type:'latency_ping',nonce:latencyNonce}));
-});
-
-/* =========================================================================
-   AUTHENTICATION & ENDPOINT RESOLUTION FOR GITHUB PAGES VIEWER
-   ========================================================================= */
-const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=miami-live-driver-2026';
-
-function resolveInitialEndpoint() {
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const wsOverride = urlParams.get('ws');
-    if (wsOverride && /^wss?:\/\//.test(wsOverride.trim())) {
-      return wsOverride.trim();
-    }
-    const keyOverride = urlParams.get('key') || urlParams.get('auth');
-    if (keyOverride) {
-      return `wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=${encodeURIComponent(keyOverride.trim())}`;
-    }
-    const saved = sessionStorage.getItem('roadie_user_ws_endpoint');
-    if (saved && /^wss?:\/\//.test(saved.trim())) {
-      return saved.trim();
-    }
-  } catch(e) {}
-
-  const host = location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local')) {
-    return `${location.protocol === 'https:' ? 'wss://' : 'ws://'}${host}:8767`;
-  }
-  if (host === '100.83.233.62' || (host.startsWith('100.') && !host.includes('ts.net'))) {
-    return `ws://100.83.233.62:8765`;
-  }
-  return DEFAULT_PUBLIC_WS;
-}
-
-$('endpoint').value = resolveInitialEndpoint();
+$('latency-test').addEventListener('click',()=>{if(!socket||socket.readyState!==WebSocket.OPEN){$('latency-result').textContent='Bridge offline';return;}latencyNonce=String(Date.now())+'-'+Math.random();latencyStart=performance.now();$('latency-test').style.background='';$('latency-result').textContent='Measuring…';socket.send(JSON.stringify({type:'latency_ping',nonce:latencyNonce}));});
+$('endpoint').value=typeof resolveInitialEndpoint==='function'?resolveInitialEndpoint():(location.protocol==='https:'?'wss://':'ws://')+(location.hostname||'127.0.0.1')+':8767';
 $('connect').onclick=()=>{const custom=$('endpoint').value.trim();try{sessionStorage.setItem('roadie_user_ws_endpoint',custom)}catch(e){}connect();if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();};
 $('endpoint').addEventListener('input',()=>{if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();});
 $('min-payout').oninput=()=>{try{localStorage.setItem('roadie_min_payout_v1',$('min-payout').value)}catch(e){};render()};
 try{$('min-payout').value=localStorage.getItem('roadie_min_payout_v1')||''}catch(e){}
-$('sort').onchange=()=>{saveSort();render()};$('sort-secondary').onchange=()=>{saveSort();render()};
-for(const m of ['now','history'])$(m).onclick=()=>{mode=m;$('now').classList.toggle('active',m==='now');$('history').classList.toggle('active',m==='history');if(m==='history'&&socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'history_request'}));render()};
+$('sort').onchange=()=>{saveSort();render()};$('sort-secondary').onchange=()=>{saveSort();render()};for(const m of ['now','history'])$(m).onclick=()=>{mode=m;$('now').classList.toggle('active',m==='now');$('history').classList.toggle('active',m==='history');if(m==='history'&&socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify({type:'history_request'}));render()};
 
 /* Persistent dual sorting */
 (function(){
@@ -1511,20 +2114,60 @@ connect();render();
   headers.addEventListener('touchcancel',clear);
 })();
 
+/* v1.7.6: Event-Driven Mismatch Logging & Ring Buffer Diagnostics. */
 /* =========================================================================
-   VIEWER IDENTITY & RUNTIME DIAGNOSTICS (v1.1.0 mirroring Mac v1.1.0)
+   DASHBOARD IDENTITY & RUNTIME DIAGNOSTICS (v1.7.6 / Event-Driven Mismatch)
    ========================================================================= */
-const VIEWER_BUILD = {
-  viewerVersion: 'v1.5.0-ghpages',
-  mirroredRelease: 'v1.5.0 · c22fc79',
-  mirroredSha: 'c22fc79501cc400ac439eeb0c8e4d3bb4c3045f0',
-  mirroredShortSha: 'c22fc79',
-  deployTimeUtc: '2026-10-30T05:00:00Z',
+const DASHBOARD_BUILD = {
+  version: 'v1.7.7',
+  commitSha: '40c195d556794b0c5a33f3e9fec9241e2b6f5051',
+  shortSha: '40c195d',
+  buildTimeUtc: '2026-11-04T06:30:00Z',
+  branch: 'research/roadie-apk',
+  repository: 'DeployForceUs/roadie-dashboard',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
-  upstreamRepo: 'DeployForceUs/roadie-dashboard [research/roadie-apk]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  role: 'Remote Read-Only Viewer (Mirrors Mac Dashboard v1.5.0)'
+  shaType: 'Comfort 10% feature commit (report/metadata commits may follow)'
 };
+
+const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=miami-live-driver-2026';
+
+function getDefaultWsPort(host) {
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local')) {
+    return 8767;
+  }
+  if (host === '100.83.233.62' || (host.startsWith('100.') && !host.includes('ts.net'))) {
+    return 8765;
+  }
+  return 8767;
+}
+
+function resolveInitialEndpoint() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const wsOverride = urlParams.get('ws');
+    if (wsOverride && /^wss?:\/\//.test(wsOverride.trim())) {
+      return wsOverride.trim();
+    }
+    const keyOverride = urlParams.get('key') || urlParams.get('auth');
+    if (keyOverride) {
+      return `wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=${encodeURIComponent(keyOverride.trim())}`;
+    }
+    const saved = sessionStorage.getItem('roadie_user_ws_endpoint');
+    if (saved && /^wss?:\/\//.test(saved.trim())) {
+      return saved.trim();
+    }
+  } catch(e) {}
+
+  const host = location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local')) {
+    return `${location.protocol === 'https:' ? 'wss://' : 'ws://'}${host}:8767`;
+  }
+  if (host === '100.83.233.62' || (host.startsWith('100.') && !host.includes('ts.net'))) {
+    return 'ws://100.83.233.62:8765';
+  }
+  return DEFAULT_PUBLIC_WS;
+}
 
 let lastScanId = null;
 let lastScanAt = null;
@@ -1537,25 +2180,27 @@ function updateDiagnosticsLive() {
   let parsed = null;
   try { parsed = new URL(url); } catch(e) {}
 
-  if ($('diag-version')) $('diag-version').textContent = `${VIEWER_BUILD.viewerVersion} (Mirrors Mac ${VIEWER_BUILD.mirroredRelease})`;
-  if ($('diag-sha')) $('diag-sha').textContent = `${VIEWER_BUILD.mirroredShortSha} (${VIEWER_BUILD.mirroredSha})`;
-  if ($('diag-deploy-time')) $('diag-deploy-time').textContent = `${VIEWER_BUILD.deployTimeUtc} (${new Date(VIEWER_BUILD.deployTimeUtc).toLocaleString()})`;
-  if ($('diag-repos')) $('diag-repos').textContent = `${VIEWER_BUILD.pagesRepo} ← Upstream: ${VIEWER_BUILD.upstreamRepo}`;
+  if ($('diag-version')) $('diag-version').textContent = DASHBOARD_BUILD.version;
+  if ($('diag-sha')) $('diag-sha').textContent = `${DASHBOARD_BUILD.shortSha} (${DASHBOARD_BUILD.commitSha})`;
+  if ($('diag-build-time')) $('diag-build-time').textContent = `${DASHBOARD_BUILD.buildTimeUtc} (${new Date(DASHBOARD_BUILD.buildTimeUtc).toLocaleString()})`;
+  if ($('diag-build-type')) $('diag-build-type').textContent = `${DASHBOARD_BUILD.repository} [${DASHBOARD_BUILD.branch}]`;
 
   if ($('diag-page-url')) $('diag-page-url').textContent = location.href;
-  if ($('diag-role')) $('diag-role').textContent = VIEWER_BUILD.role;
+  const httpPort = location.port || (location.protocol === 'https:' ? '443' : '80');
+  if ($('diag-http-port')) $('diag-http-port').textContent = `${httpPort} (${location.protocol}//${location.host}) · Python SimpleHTTP`;
+
   if ($('diag-ws-url')) $('diag-ws-url').textContent = url || 'None';
 
   let topology = 'Unknown';
   if (parsed) {
-    if (parsed.hostname.includes('.tailf53f5f.ts.net') || parsed.pathname.startsWith('/ws')) {
-      topology = 'Public Tailscale Funnel TLS Gateway (:443 -> :8088 -> Bridge :8767)';
+    if (parsed.hostname && parsed.hostname.includes('ts.net')) {
+      topology = 'Public Gateway (Tailscale Funnel TLS :443 -> 127.0.0.1:8088)';
     } else if (parsed.port === '8767') {
       topology = 'Direct Bridge (Localhost :8767 · Python websockets)';
     } else if (parsed.port === '8765') {
       topology = 'Tailscale Proxy (:8765 -> Bridge 127.0.0.1:8767 · Python ws-proxy)';
     } else {
-      topology = `Custom Gateway (${parsed.hostname}:${parsed.port || 'default'})`;
+      topology = `Custom Port (${parsed.port || 'default'})`;
     }
   }
   if ($('diag-topology')) $('diag-topology').textContent = topology;
@@ -1587,7 +2232,7 @@ function updateDiagnosticsLive() {
   let bridgeClass = 'err';
   if (socket && socket.readyState === WebSocket.OPEN) {
     if (lastSnapshot > 0) {
-      bridgeState = 'ACTIVE (Receiving live frames via Gateway)';
+      bridgeState = 'ACTIVE (Receiving live frames)';
       bridgeClass = 'ok';
     } else {
       bridgeState = 'WAITING (Socket open, awaiting initial snapshot)';
@@ -1601,13 +2246,17 @@ function updateDiagnosticsLive() {
   }
 
   if ($('diag-bridge-upstream')) {
-    $('diag-bridge-upstream').textContent = (parsed && parsed.hostname.includes('ts.net'))
-      ? 'Tailscale Funnel / Gateway -> Bridge 127.0.0.1:8767'
+    $('diag-bridge-upstream').textContent = (parsed && parsed.hostname && parsed.hostname.includes('ts.net'))
+      ? '127.0.0.1:8767 (via Public Gateway 127.0.0.1:8088 & Funnel)'
       : (parsed && parsed.port === '8765')
       ? '127.0.0.1:8767 (via ws-proxy 100.83.233.62:8765)'
       : (parsed && parsed.port === '8767')
       ? '127.0.0.1:8767 (Direct listener)'
-      : 'Custom Gateway Endpoint';
+      : 'Unknown (Custom endpoint)';
+  }
+
+  if ($('diag-bridge-version')) {
+    $('diag-bridge-version').textContent = 'Unknown (not reported by Bridge)';
   }
 
   const searchAge = lastSearchTime > 0 ? Math.round((Date.now() - lastSearchTime) / 1000) : null;
@@ -1678,57 +2327,155 @@ function closeDiagnostics() {
   $('version-badge')?.setAttribute('aria-expanded', 'false');
 }
 
-function setEndpointAndConnect(targetUrl) {
-  $('endpoint').value = targetUrl;
-  try { sessionStorage.setItem('roadie_user_ws_endpoint', targetUrl); } catch(e) {}
+function setEndpointAndConnect(target) {
+  let newUrl;
+  if (typeof target === 'string') {
+    newUrl = target;
+  } else if (target === 8767) {
+    newUrl = 'ws://127.0.0.1:8767';
+  } else if (target === 8765) {
+    newUrl = 'ws://100.83.233.62:8765';
+  } else {
+    const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    let host = location.hostname || '127.0.0.1';
+    newUrl = `${proto}${host}:${target}`;
+  }
+  $('endpoint').value = newUrl;
+  try { sessionStorage.setItem('roadie_user_ws_endpoint', newUrl); } catch(e) {}
   updateDiagnosticsLive();
   connect();
 }
 
 // Wire up diagnostic interactions
+// Dialog markup follows this script: bind controls only after the DOM is ready.
 document.addEventListener('DOMContentLoaded', () => {
   $('version-badge')?.addEventListener('click', openDiagnostics);
   $('diag-close')?.addEventListener('click', closeDiagnostics);
   $('version-dialog')?.addEventListener('click', e => {
     if (e.target === $('version-dialog')) closeDiagnostics();
   });
-  window.addEventListener('keydown', e => { if (e.key === 'Escape') closeDiagnostics(); });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeDiagnostics();
+  });
 });
 $('btn-use-public')?.addEventListener('click', () => setEndpointAndConnect(DEFAULT_PUBLIC_WS));
-$('btn-use-8765')?.addEventListener('click', () => setEndpointAndConnect('ws://100.83.233.62:8765'));
-$('btn-use-8767')?.addEventListener('click', () => setEndpointAndConnect('ws://127.0.0.1:8767'));
+$('btn-use-8767')?.addEventListener('click', () => setEndpointAndConnect(8767));
+$('btn-use-8765')?.addEventListener('click', () => setEndpointAndConnect(8765));
 setInterval(updateDiagnosticsLive, 1000);
+
+
+/* Optional, localhost-only System Inspector. No background polling. */
+let inspectorLast = null;
+async function inspectorRequest(method, path) {
+  const token = document.getElementById('inspector-token').value.trim();
+  if (!token) throw new Error('Enter the local Inspector access token first');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch('http://127.0.0.1:8779' + path, {
+      method, headers: {'X-Roadie-Inspector-Token': token}, signal: controller.signal,
+      cache: 'no-store', credentials: 'omit'
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || ('HTTP ' + response.status));
+    return body;
+  } finally { clearTimeout(timeout); }
+}
+function inspectorDisplay(result) {
+  inspectorLast = result;
+  document.getElementById('inspector-output').textContent = JSON.stringify(result, null, 2);
+  const audit = result.audit || {};
+  const comparison = result.comparison || {};
+  document.getElementById('inspector-status').textContent =
+    'Audit: ' + (audit.captured_at || 'not available') +
+    ' · Processes: ' + ((audit.processes || []).length) +
+    ' · Diff: ' + (comparison.status || 'not compared') +
+    ' · Changes: ' + ((comparison.changes || []).length);
+}
+async function inspectorAction(method, path) {
+  const status = document.getElementById('inspector-status');
+  status.textContent = 'Collecting read-only diagnostics…';
+  try {
+    const result = await inspectorRequest(method, path);
+    if (path === '/baseline') {
+      status.textContent = 'Baseline saved at ' + result.baseline_at;
+      inspectorDisplay(await inspectorRequest('GET', '/audit'));
+    } else inspectorDisplay(result);
+  } catch (error) {
+    status.textContent = 'Inspector unavailable: ' + error.message +
+      '. Existing Dashboard continues normally.';
+  }
+}
+async function inspectorPublish() {
+  const status = document.getElementById('inspector-status');
+  status.textContent = 'Publishing sanitized audit to GitHub…';
+  try {
+    const result = await inspectorRequest('POST', '/publish');
+    status.textContent = 'Published · Commit ' + result.commit_sha;
+    const output = document.getElementById('inspector-publish-result');
+    output.textContent = '';
+    const link = document.createElement('a');
+    link.href = result.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    link.textContent = 'Open GitHub report · ' + result.commit_sha.slice(0, 12);
+    output.appendChild(link);
+  } catch (error) {
+    status.textContent = 'GitHub publication failed: ' + error.message;
+  }
+}
+function inspectorDownload(format) {
+  if (!inspectorLast) { document.getElementById('inspector-status').textContent = 'Run Audit first'; return; }
+  const audit = inspectorLast.audit || {};
+  const comparison = inspectorLast.comparison || {};
+  const body = format === 'json' ? JSON.stringify(inspectorLast, null, 2) :
+    '# Roadie System Inspector Audit\n\nCaptured: ' + (audit.captured_at || 'unknown') +
+    '\n\n## Runtime\n\n```json\n' + JSON.stringify(audit, null, 2) +
+    '\n```\n\n## Baseline comparison\n\n```json\n' +
+    JSON.stringify(comparison, null, 2) + '\n```\n';
+  const blob = new Blob([body], {type: format === 'json' ? 'application/json' : 'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'roadie-system-inspector.' + (format === 'json' ? 'json' : 'md');
+  a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('inspector-run')?.addEventListener('click', () => inspectorAction('GET', '/audit'));
+  document.getElementById('inspector-compare')?.addEventListener('click', () => inspectorAction('GET', '/audit'));
+  document.getElementById('inspector-baseline')?.addEventListener('click', () => inspectorAction('POST', '/baseline'));
+  document.getElementById('inspector-export-json')?.addEventListener('click', () => inspectorDownload('json'));
+  document.getElementById('inspector-export-md')?.addEventListener('click', () => inspectorDownload('md'));
+  document.getElementById('inspector-publish')?.addEventListener('click', inspectorPublish);
+});
 </script>
 
 <div id="version-dialog" class="diag-modal" role="dialog" aria-modal="true" aria-labelledby="diag-title" style="display:none">
   <div class="diag-sheet">
     <div class="diag-header">
-      <h2 id="diag-title">GitHub Pages Viewer Identity & Diagnostics</h2>
+      <h2 id="diag-title">Dashboard Identity & Runtime Diagnostics</h2>
       <button type="button" id="diag-close" class="diag-close" aria-label="Close diagnostics">×</button>
     </div>
     <div class="diag-body">
-      <div class="diag-section-title">Build & Mirrored Release Identity</div>
+      <div class="diag-section-title">Build & Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Viewer Release</span><b class="diag-val" id="diag-version">v1.5.0-ghpages</b></div>
-        <div class="diag-item"><span class="diag-label">Mirrored Mac Commit SHA</span><b class="diag-val" id="diag-sha">c22fc79 (c22fc79501cc400ac439eeb0c8e4d3bb4c3045f0)</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Deployment Time</span><b class="diag-val" id="diag-deploy-time">2026-10-30T05:00:00Z</b></div>
-        <div class="diag-item"><span class="diag-label">Repositories & Branches</span><b class="diag-val" id="diag-repos">DeployForceUs/dispatch-view-26 [main]</b></div>
-        <div class="diag-item"><span class="diag-label">Viewer Role</span><b class="diag-val" id="diag-role" style="color:#79c6ff">Remote Read-Only Viewer (Mirrors Mac Dashboard v1.5.0)</b></div>
-        <div class="diag-item"><span class="diag-label">Security & Permissions</span><b class="diag-val ok">STRICT READ-ONLY (Offer submission restricted to primary Mac)</b></div>
+        <div class="diag-item"><span class="diag-label">Dashboard Version</span><b class="diag-val" id="diag-version">v1.7.7</b></div>
+        <div class="diag-item"><span class="diag-label">Build Base SHA</span><b class="diag-val" id="diag-sha">40c195d (40c195d556794b0c5a33f3e9fec9241e2b6f5051)</b></div>
+        <div class="diag-item"><span class="diag-label">Build Timestamp (UTC)</span><b class="diag-val" id="diag-build-time">2026-11-04T06:30:00Z</b></div>
+        <div class="diag-item"><span class="diag-label">Repository & Branch</span><b class="diag-val" id="diag-build-type">DeployForceUs/roadie-dashboard [research/roadie-apk]</b></div>
       </div>
 
-      <div class="diag-section-title">Runtime HTTP & Network Ingress</div>
+      <div class="diag-section-title">Runtime HTTP & Network Topology</div>
       <div class="diag-grid">
         <div class="diag-item"><span class="diag-label">Current Page URL</span><b class="diag-val" id="diag-page-url">—</b></div>
+        <div class="diag-item"><span class="diag-label">HTTP Server Host / Port</span><b class="diag-val" id="diag-http-port">—</b></div>
         <div class="diag-item"><span class="diag-label">Selected WebSocket URL</span><b class="diag-val" id="diag-ws-url">—</b></div>
         <div class="diag-item"><span class="diag-label">Connection Topology</span><b class="diag-val" id="diag-topology">—</b></div>
       </div>
 
-      <div class="diag-section-title">Live WebSocket & Upstream Telemetry</div>
+      <div class="diag-section-title">Live WebSocket & Bridge State</div>
       <div class="diag-grid">
         <div class="diag-item"><span class="diag-label">WebSocket Status</span><b class="diag-val" id="diag-ws-status">DISCONNECTED</b></div>
-        <div class="diag-item"><span class="diag-label">Gateway Data Link</span><b class="diag-val" id="diag-bridge-status">OFFLINE</b></div>
-        <div class="diag-item"><span class="diag-label">Upstream Bridge Target</span><b class="diag-val" id="diag-bridge-upstream">—</b></div>
+        <div class="diag-item"><span class="diag-label">Bridge Data Link</span><b class="diag-val" id="diag-bridge-status">OFFLINE</b></div>
+        <div class="diag-item"><span class="diag-label">Bridge Upstream Target</span><b class="diag-val" id="diag-bridge-upstream">127.0.0.1:8767</b></div>
+        <div class="diag-item"><span class="diag-label">Bridge Runtime Version</span><b class="diag-val" id="diag-bridge-version">Unknown (not reported by Bridge)</b></div>
         <div class="diag-item"><span class="diag-label">Last Successful SEARCH</span><b class="diag-val" id="diag-last-search-time">—</b></div>
         <div class="diag-item"><span class="diag-label">Last Snapshot Time</span><b class="diag-val" id="diag-last-snap-time">—</b></div>
         <div class="diag-item"><span class="diag-label">Last Scan ID</span><b class="diag-val" id="diag-last-scan-id">—</b></div>
@@ -1736,6 +2483,22 @@ setInterval(updateDiagnosticsLive, 1000);
         <div class="diag-item"><span class="diag-label">Data Freshness</span><b class="diag-val" id="diag-freshness">—</b></div>
       </div>
 
+      <div class="diag-section-title">System Inspector · Read-only</div>
+      <div style="padding:12px;border:1px solid #2b5568;border-radius:8px;margin:8px 0;color:#d6f4f1">
+        <div style="font-size:12px;margin-bottom:8px">Optional local Python audit service. Existing diagnostics remain unchanged. Start <code>python3 tools/system_inspector.py</code> on this Mac, then paste the access token shown in its terminal. Never share the token.</div>
+        <label style="display:block;font-size:12px">Local Inspector Token <input id="inspector-token" type="password" autocomplete="off" placeholder="Token (not stored)" style="background:#102b3e;color:white;border:1px solid #406171;padding:6px;width:65%"></label>
+        <div class="diag-buttons" style="margin-top:10px;flex-wrap:wrap">
+          <button type="button" class="diag-btn" id="inspector-run">Run Full Audit</button>
+          <button type="button" class="diag-btn" id="inspector-baseline">Save Baseline</button>
+          <button type="button" class="diag-btn" id="inspector-compare">Compare</button>
+          <button type="button" class="diag-btn" id="inspector-export-json">Export JSON</button>
+          <button type="button" class="diag-btn" id="inspector-export-md">Export Markdown</button>
+          <button type="button" class="diag-btn" id="inspector-publish">Publish to GitHub</button>
+        </div>
+        <div id="inspector-publish-result" style="font-size:12px;margin-top:6px"></div>
+        <div id="inspector-status" role="status" style="margin-top:8px;font-size:12px">Not run · no changes to running processes</div>
+        <pre id="inspector-output" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:280px;overflow:auto;font-size:11px"></pre>
+      </div>
       <div class="diag-actions">
         <div class="diag-actions-label">Quick-Switch WebSocket Endpoint:</div>
         <div class="diag-buttons">

@@ -1949,6 +1949,7 @@ function telemetryData(){
 }
 // GitHub Pages and Gateway have different origins: Gateway cookies cannot authenticate Pages WebSockets.
 // Ask the user for the Gateway access key in the browser, never embed it in the public repository.
+const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws';
 function isPublicGatewayUrl(url) {
   try { return new URL(url).hostname === 'dmitriis-mac-mini-24.tailf53f5f.ts.net'; }
   catch (_) { return false; }
@@ -2174,7 +2175,7 @@ const DASHBOARD_BUILD = {
   shaType: 'Comfort 10% feature commit (report/metadata commits may follow)'
 };
 
-const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws';
+
 
 function getDefaultWsPort(host) {
   if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local')) {

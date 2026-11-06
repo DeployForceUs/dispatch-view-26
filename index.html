@@ -378,7 +378,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #dashboard-page-reload{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:36px;height:34px;padding:0;font-size:23px;line-height:1;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:7px}
 #dashboard-page-reload:focus-visible{outline:2px solid #67f0a1;outline-offset:3px}
 </style><style>.fit-badge{display:inline-block;min-width:54px;padding:2px 6px;border:1px solid;border-radius:5px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2px}.fit-easy{color:#67f0a1;border-color:#2f9e68;background:#123d34}.fit-tight{color:#ffd166;border-color:#b88822;background:#3a2d0a}.fit-not{color:#ff8e8e;border-color:#b84d4d;background:#3d1717}</style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span><span id="snap-monitor" title="LIVE Gig IDs / latest complete SQLite snapshot" style="font-size:12px;color:#85d6c8;white-space:nowrap">UI / SNAP: — / —</span><button type="button" id="snap-log-toggle" style="font-size:11px;padding:3px 7px;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:5px;cursor:pointer">LOG</button></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">v1.7.7 · <span id="version-sha">40c195d</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span><span id="snap-monitor" title="LIVE Gig IDs / latest complete SQLite snapshot" style="font-size:12px;color:#85d6c8;white-space:nowrap">UI / SNAP: — / —</span><button type="button" id="snap-log-toggle" style="font-size:11px;padding:3px 7px;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:5px;cursor:pointer">LOG</button></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">v1.7.8 · <span id="version-sha">76d4048</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-Bridge round trip; Android test will be connected separately">TEST BRIDGE</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><button id="check-submit" type="button" title="Read-only Samsung connection check; uses diagnostic ID when LIVE is empty; never submits">Check Submit</button><output id="check-submit-result" class="small" aria-live="polite"></output><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="pickup_desc">Pickup Z–A</option>
 <option value="pickup_asc">Pickup A–Z</option>
@@ -1154,21 +1154,20 @@ function notifyLiveChanges(){
 
   const sequence=[];
 
-  // 1. Order count changes
-  if(current.size>soundBaseline.size){
-    sequence.push('up');
-  }
-
-  // 2. Exact price changes on existing live orders
-  let hasPriceUp=false;
+  // Detect changes across all live IDs, but alert only for gigs visible under active filters.
+  // The raw baseline must still include hidden gigs to avoid false alerts on filter changes.
+  let hasNew=false,hasPriceUp=false;
   for(const [id,price] of current){
-    if(soundBaseline.has(id)&&price!=null){
+    const gig=historic.get(id);
+    if(!gig||!passesLiveFilters(gig))continue;
+    if(!soundBaseline.has(id)){
+      hasNew=true;
+    }else if(price!=null){
       const oldPrice=soundBaseline.get(id);
-      if(oldPrice!=null){
-        if(price>oldPrice)hasPriceUp=true;
-      }
+      if(oldPrice!=null&&price>oldPrice)hasPriceUp=true;
     }
   }
+  if(hasNew)sequence.push('up');
 
   if(hasPriceUp){
     sequence.push('price_up');
@@ -1696,14 +1695,17 @@ $('comfort-sort').onclick=()=>{
 updateComfortSortButton();
 let excludeNotFit=false;
 try{excludeNotFit=localStorage.getItem('roadie_exclude_not_fit_v1')==='true'}catch(e){}
+function passesLiveFilters(g){
+  const raw=$('min-payout').value.trim();
+  const minimum=raw===''?null:Number(raw);
+  return (minimum===null||!Number.isFinite(minimum)||(g.price!=null&&Number(g.price)>=minimum)) &&
+    (!excludeNotFit||g.fit_status!=='NOT_FIT');
+}
 function render(){
   renderDayNav();
-  const minPayoutInput=$('min-payout').value.trim();
-  const minPayout=minPayoutInput===''?null:Number(minPayoutInput);
   const arr=[...historic.values()].filter(g=>
     (mode==='now'?(liveIds.has(g.id)||visualKind(g.id)==='gone'):roadieDay(g.first_seen??g.last_seen)===selectedDay) &&
-    (minPayout===null||!Number.isFinite(minPayout)||(g.price!=null&&Number(g.price)>=minPayout)) &&
-    (!excludeNotFit||g.fit_status!=='NOT_FIT')
+    passesLiveFilters(g)
   );
 
   // roadie-dual-sort-v1
@@ -2164,15 +2166,15 @@ connect();render();
    DASHBOARD IDENTITY & RUNTIME DIAGNOSTICS (v1.7.6 / Event-Driven Mismatch)
    ========================================================================= */
 const DASHBOARD_BUILD = {
-  version: 'v1.7.7',
-  commitSha: '40c195d556794b0c5a33f3e9fec9241e2b6f5051',
-  shortSha: '40c195d',
+  version: 'v1.7.8',
+  commitSha: '76d4048b57bb55f4bb5b3aa55f41252b8b4484dc',
+  shortSha: '76d4048',
   buildTimeUtc: '2026-11-04T06:30:00Z',
   branch: 'research/roadie-apk',
   repository: 'DeployForceUs/roadie-dashboard',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  shaType: 'Comfort 10% feature commit (report/metadata commits may follow)'
+  shaType: 'v1.7.8 filter-aware audio fix; Public Gateway preserved'
 };
 
 
@@ -2500,7 +2502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="diag-body">
       <div class="diag-section-title">Build & Release Identity</div>
       <div class="diag-grid">
-        <div class="diag-item"><span class="diag-label">Dashboard Version</span><b class="diag-val" id="diag-version">v1.7.7</b></div>
+        <div class="diag-item"><span class="diag-label">Dashboard Version</span><b class="diag-val" id="diag-version">v1.7.8</b></div>
         <div class="diag-item"><span class="diag-label">Build Base SHA</span><b class="diag-val" id="diag-sha">40c195d (40c195d556794b0c5a33f3e9fec9241e2b6f5051)</b></div>
         <div class="diag-item"><span class="diag-label">Build Timestamp (UTC)</span><b class="diag-val" id="diag-build-time">2026-11-04T06:30:00Z</b></div>
         <div class="diag-item"><span class="diag-label">Repository & Branch</span><b class="diag-val" id="diag-build-type">DeployForceUs/roadie-dashboard [research/roadie-apk]</b></div>

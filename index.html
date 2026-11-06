@@ -1947,12 +1947,56 @@ function telemetryData(){
   void el.offsetWidth;
   el.classList.add('pulse');
 }
+// GitHub Pages and Gateway have different origins: Gateway cookies cannot authenticate Pages WebSockets.
+// Ask the user for the Gateway access key in the browser, never embed it in the public repository.
+function isPublicGatewayUrl(url) {
+  try { return new URL(url).hostname === 'dmitriis-mac-mini-24.tailf53f5f.ts.net'; }
+  catch (_) { return false; }
+}
+function showGatewayLogin() {
+  if (document.getElementById('gateway-login-overlay')) return;
+  const overlay=document.createElement('div');
+  overlay.id='gateway-login-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:20000;background:#061522ee;display:flex;align-items:center;justify-content:center;padding:20px';
+  const panel=document.createElement('form');
+  panel.style.cssText='width:min(420px,100%);padding:24px;background:#102b3e;border:1px solid #406171;border-radius:14px;color:#e7f2f7';
+  const title=document.createElement('h2');title.textContent='Roadie Dashboard · Login';title.style.margin='0 0 12px';
+  const help=document.createElement('p');help.textContent='Enter the access code for Public Gateway. It is not saved in GitHub.';help.style.fontSize='14px';
+  const field=document.createElement('input');field.type='password';field.required=true;field.autocomplete='off';field.placeholder='Access code';field.setAttribute('aria-label','Gateway access code');field.style.cssText='width:100%;padding:12px;background:#081724;color:white;border:1px solid #406171;border-radius:8px;font-size:16px';
+  const submit=document.createElement('button');submit.type='submit';submit.textContent='Connect LIVE';submit.style.cssText='margin-top:14px;width:100%;padding:12px;background:#146f76;color:white;border:0;border-radius:8px;font-weight:700';
+  panel.append(title,help,field,submit);overlay.append(panel);document.body.append(overlay);
+  panel.addEventListener('submit',e=>{e.preventDefault();const key=field.value.trim();if(!key)return;sessionStorage.setItem('roadie_gateway_access_key',key);field.value='';overlay.remove();connect();});
+  field.focus();
+}
+function publicWsUrl(raw) {
+  const url=new URL(raw);
+  if(isPublicGatewayUrl(raw)){
+    const key=sessionStorage.getItem('roadie_gateway_access_key');
+    if(!key)return null;
+    url.searchParams.delete('auth');
+    url.searchParams.set('key',key);
+  }
+  return url.toString();
+}
+function changeGatewayLogin() {
+  sessionStorage.removeItem('roadie_gateway_access_key');
+  if(socket){socket.onclose=null;socket.close();socket=null;}
+  showGatewayLogin();
+}
+if(location.hostname==='deployforceus.github.io'){
+  const loginBtn=document.createElement('button');loginBtn.textContent='Login / Change code';loginBtn.type='button';
+  loginBtn.style.cssText='font-size:12px;margin-left:8px';
+  loginBtn.onclick=changeGatewayLogin;
+  document.querySelector('header')?.append(loginBtn);
+}
 function connect(){
   clearTimeout(reconnectTimer);
   if(socket){socket.onclose=null;socket.close();}
   const url=$('endpoint').value.trim();
   if(!/^wss?:\/\//.test(url)){$('status').textContent='Enter ws:// or wss:// endpoint';if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();return}
-  const ws=new WebSocket(url);socket=ws;
+  const targetUrl=publicWsUrl(url);
+  if(!targetUrl){$('status').textContent='Login required';showGatewayLogin();return;}
+  const ws=new WebSocket(targetUrl);socket=ws;
   telemetryConnection('connecting');updateLiveHealth();
   $('status').textContent='Connecting…';
   if(typeof updateDiagnosticsLive==='function')updateDiagnosticsLive();
@@ -2130,7 +2174,7 @@ const DASHBOARD_BUILD = {
   shaType: 'Comfort 10% feature commit (report/metadata commits may follow)'
 };
 
-const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=miami-live-driver-2026';
+const DEFAULT_PUBLIC_WS = 'wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws';
 
 function getDefaultWsPort(host) {
   if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.local')) {
@@ -2149,13 +2193,12 @@ function resolveInitialEndpoint() {
     if (wsOverride && /^wss?:\/\//.test(wsOverride.trim())) {
       return wsOverride.trim();
     }
-    const keyOverride = urlParams.get('key') || urlParams.get('auth');
-    if (keyOverride) {
-      return `wss://dmitriis-mac-mini-24.tailf53f5f.ts.net/ws?key=${encodeURIComponent(keyOverride.trim())}`;
-    }
+    // Do not accept access keys in page URLs (browser history/referrer exposure).
     const saved = sessionStorage.getItem('roadie_user_ws_endpoint');
     if (saved && /^wss?:\/\//.test(saved.trim())) {
-      return saved.trim();
+      const u = new URL(saved.trim());
+      u.searchParams.delete('key');u.searchParams.delete('auth');
+      return u.toString();
     }
   } catch(e) {}
 
@@ -2185,11 +2228,11 @@ function updateDiagnosticsLive() {
   if ($('diag-build-time')) $('diag-build-time').textContent = `${DASHBOARD_BUILD.buildTimeUtc} (${new Date(DASHBOARD_BUILD.buildTimeUtc).toLocaleString()})`;
   if ($('diag-build-type')) $('diag-build-type').textContent = `${DASHBOARD_BUILD.repository} [${DASHBOARD_BUILD.branch}]`;
 
-  if ($('diag-page-url')) $('diag-page-url').textContent = location.href;
+  if ($('diag-page-url')) $('diag-page-url').textContent = location.origin + location.pathname;
   const httpPort = location.port || (location.protocol === 'https:' ? '443' : '80');
   if ($('diag-http-port')) $('diag-http-port').textContent = `${httpPort} (${location.protocol}//${location.host}) · Python SimpleHTTP`;
 
-  if ($('diag-ws-url')) $('diag-ws-url').textContent = url || 'None';
+  if ($('diag-ws-url')) $('diag-ws-url').textContent = parsed ? parsed.origin + parsed.pathname : 'None';
 
   let topology = 'Unknown';
   if (parsed) {

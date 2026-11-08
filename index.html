@@ -382,7 +382,7 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb,
 #min-payout.filter-active{color:rgb(255,0,0)!important;-webkit-text-fill-color:rgb(255,0,0)!important;font-weight:800}
 #headers th[data-col="fit"].filter-active{color:rgb(255,0,0)!important;-webkit-text-fill-color:rgb(255,0,0)!important}
 .fit-badge{display:inline-block;min-width:54px;padding:2px 6px;border:1px solid;border-radius:5px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.2px}.fit-easy{color:#67f0a1;border-color:#2f9e68;background:#123d34}.fit-tight{color:#ffd166;border-color:#b88822;background:#3a2d0a}.fit-not{color:#ff8e8e;border-color:#b84d4d;background:#3d1717}</style></head><body>
-<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span><span id="snap-monitor" title="LIVE Gig IDs / latest complete SQLite snapshot" style="font-size:12px;color:#85d6c8;white-space:nowrap">UI / SNAP: — / —</span><button type="button" id="snap-log-toggle" style="font-size:11px;padding:3px 7px;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:5px;cursor:pointer">LOG</button></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">v1.8.0 · <span id="version-sha">76d4048</span></button></div></header>
+<header><div class="header-identity"><h1>ROADIE RADAR · LIVE TABLE</h1><span id="count">0 gigs</span><span id="snap-monitor" title="LIVE Gig IDs / latest complete SQLite snapshot" style="font-size:12px;color:#85d6c8;white-space:nowrap">UI / SNAP: — / —</span><button type="button" id="snap-log-toggle" style="font-size:11px;padding:3px 7px;background:#153449;color:#a7e5e6;border:1px solid #406171;border-radius:5px;cursor:pointer">LOG</button></div><div class="telemetry"><span class="telemetry-item" id="ws-indicator" title="WebSocket connection"><span class="telemetry-lights"><i></i><i></i><i></i></span><span id="ws-label">CONNECTING</span></span><span class="telemetry-item" id="data-indicator" title="Incoming snapshot activity"><span class="telemetry-lights"><i></i><i></i><i></i></span><span>DATA</span></span><span id="status">Connecting…</span><button type="button" id="version-badge" class="version-badge" aria-haspopup="dialog" aria-expanded="false" title="Click for Dashboard identity & runtime diagnostics">v1.9.0 · <span id="version-sha">41efa88</span></button></div></header>
 <nav><div id="latency-panel"><button id="latency-test" type="button" title="Measure browser-to-Bridge round trip; Android test will be connected separately">TEST BRIDGE</button><output id="latency-result" aria-live="polite">0.0 ms</output></div><button id="check-submit" type="button" title="Read-only Samsung connection check; uses diagnostic ID when LIVE is empty; never submits">Check Submit</button><output id="check-submit-result" class="small" aria-live="polite"></output><button id="now" class="active">LIVE</button><button id="history">HISTORY</button><label>Primary <select id="sort">
 <option value="pickup_desc">Pickup Z–A</option>
 <option value="pickup_asc">Pickup A–Z</option>
@@ -1219,7 +1219,8 @@ function ingest(message){
         first_seen:record?.first_seen??live.first_seen,
         first_price:record?.first_price??live.first_price,
         price_history:record?.price_history??live.price_history,
-        presence_history:record?.presence_history??live.presence_history});
+        presence_history:record?.presence_history??live.presence_history,
+        observed_days:record?.observed_days??live.observed_days});
     }
     render();return;
   }
@@ -1229,15 +1230,19 @@ function ingest(message){
     const at=message.scan_at??message.at??new Date().toISOString();
     const demo=message.source==='HISTORICAL_DEMO';
     const nextIds=new Set();
+    const snapDay=roadieDay(at);
     for(const raw of arr){
       const g=normalize(raw);if(!g.id)continue;
       nextIds.add(g.id);
       const old=historic.get(g.id);
+      const days=new Set(old?.observed_days??[]);
+      if(snapDay)days.add(snapDay);
       historic.set(g.id,{...old,...g,
         pickup_name:g.pickup_name??old?.pickup_name??null,
         first_seen:g.first_seen??old?.first_seen??at,
         first_price:num(g.first_price)??old?.first_price??g.price,
         price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
+        observed_days:[...days].sort(),
         last_seen:at});
     }
     // LIVE is exactly the IDs in the most recently received successful snapshot.
@@ -1256,11 +1261,15 @@ function ingest(message){
   if(type==='upsert'&&message.gig){
     const g=normalize(message.gig);if(!g.id)return;
     const old=historic.get(g.id),at=message.at??new Date().toISOString();
+    const snapDay=roadieDay(at);
+    const days=new Set(old?.observed_days??[]);
+    if(snapDay)days.add(snapDay);
     historic.set(g.id,{...old,...g,
       pickup_name:g.pickup_name??old?.pickup_name??null,
       first_seen:g.first_seen??old?.first_seen??at,
       first_price:num(g.first_price)??old?.first_price??g.price,
       price_history:(Array.isArray(g.price_history)&&g.price_history.length>0)?g.price_history:(old?.price_history??[]),
+      observed_days:[...days].sort(),
       last_seen:at});
     liveIds.add(g.id);noteVisualChanges();notifyLiveChanges();render();return;
   }
@@ -1316,7 +1325,7 @@ const COLS=[
   ['city','Destination',g=>esc(str(g.city)),''],
   ['first','First seen',g=>esc(g.first_seen?new Date(g.first_seen).toLocaleTimeString():'—'),''],
   ['age','Observed span',g=>age(g.first_seen,g.last_seen),''],
-  ['last','Last seen',g=>esc(g.last_seen?new Date(g.last_seen).toLocaleTimeString():'—'),''],
+  ['last','Last seen',g=>esc(formatLastSeen(g)),''],
   ['delta','Δ since first',g=>{const d=g.price!=null&&g.first_price!=null?g.price-g.first_price:null;return d==null||d===0?'—':(d>0?'↑ +':'↓ −')+cash(Math.abs(d))},''],
   ['deliveries','Deliveries',g=>g.delivery_points!=null&&g.deliveries!=null&&g.delivery_points<g.deliveries?str(g.deliveries)+' / '+str(g.delivery_points):str(g.deliveries),''],
   ['id','Gig ID',g=>esc(g.id),'small']
@@ -1608,7 +1617,7 @@ function renderMobileCards(arr){
       g.minutes!=null?fmtTime(g.minutes):null,
       g.miles!=null?whole(g.miles)+' mi'+bearingArrow(g):null,
       g.deliveries!=null?str(g.deliveries)+' deliveries':null,
-      g.last_seen?('Last seen '+new Date(g.last_seen).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})):null
+      formatLastSeenMobile(g)
     ].filter(Boolean).map(v=>v.includes('aria-label="Direction')?v:esc(v)).join('<span aria-hidden="true">·</span>');
     const change=delta==null||delta===0?'':('<div class="mobile-delta '+(delta>0?'up':'down')+'">'+(delta>0?'↑ +':'↓ −')+cash(Math.abs(delta))+' since first</div>');
     return '<div class="mobile-offer"><button type="button" class="mobile-card '+css+'" data-id="'+esc(g.id)+'">'+
@@ -1636,17 +1645,59 @@ const roadieDay=t=>{
 };
 const todayRoadie=()=>roadieDay(Date.now());
 
+function gigObservedDays(g){
+  const days=new Set();
+  if(Array.isArray(g?.observed_days)){
+    for(const d of g.observed_days)if(typeof d==='string'&&d)days.add(d);
+  }
+  const fDay=roadieDay(g?.first_seen);
+  if(fDay)days.add(fDay);
+  const lDay=roadieDay(g?.last_seen);
+  if(lDay)days.add(lDay);
+  if(Array.isArray(g?.price_history)){
+    for(const p of g.price_history){
+      const d=roadieDay(p?.observed_at);
+      if(d)days.add(d);
+    }
+  }
+  return [...days].sort();
+}
+
+function formatLastSeen(g){
+  if(!g||!g.last_seen)return '—';
+  const isCurrentDay=(mode==='now'||selectedDay===todayRoadie());
+  if(!isCurrentDay&&selectedDay){
+    const days=gigObservedDays(g);
+    if(days.some(d=>d>selectedDay)){
+      return '→ Next day';
+    }
+  }
+  return new Date(g.last_seen).toLocaleTimeString();
+}
+
+function formatLastSeenMobile(g){
+  if(!g||!g.last_seen)return null;
+  const isCurrentDay=(mode==='now'||selectedDay===todayRoadie());
+  if(!isCurrentDay&&selectedDay){
+    const days=gigObservedDays(g);
+    if(days.some(d=>d>selectedDay)){
+      return 'Last seen → Next day';
+    }
+  }
+  return 'Last seen '+new Date(g.last_seen).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+}
+
 function renderDayNav(){
   const nav=$('day-nav');
   nav.style.display=mode==='history'?'flex':'none';
   if(mode!=='history')return;
 
-  const days=[...new Set(
-    [...historic.values()]
-      .map(g=>roadieDay(g.first_seen??g.last_seen))
-      .filter(Boolean)
-      .concat(todayRoadie())
-  )].sort();
+  const allDays=new Set();
+  for(const g of historic.values()){
+    for(const d of gigObservedDays(g))allDays.add(d);
+  }
+  allDays.add(todayRoadie());
+  const days=[...allDays].filter(Boolean).sort();
 
   if(!selectedDay)selectedDay=todayRoadie();
   const idx=days.indexOf(selectedDay);
@@ -1715,7 +1766,7 @@ function render(){
   renderDayNav();
   updateFilterIndicators();
   const arr=[...historic.values()].filter(g=>
-    (mode==='now'?(liveIds.has(g.id)||visualKind(g.id)==='gone'):roadieDay(g.first_seen??g.last_seen)===selectedDay) &&
+    (mode==='now'?(liveIds.has(g.id)||visualKind(g.id)==='gone'):gigObservedDays(g).includes(selectedDay)) &&
     passesLiveFilters(g)
   );
 
@@ -2178,15 +2229,15 @@ connect();render();
    DASHBOARD IDENTITY & RUNTIME DIAGNOSTICS (v1.7.6 / Event-Driven Mismatch)
    ========================================================================= */
 const DASHBOARD_BUILD = {
-  version: 'v1.8.0',
-  commitSha: '76d4048b57bb55f4bb5b3aa55f41252b8b4484dc',
-  shortSha: '76d4048',
-  buildTimeUtc: '2026-11-04T06:30:00Z',
+  version: 'v1.9.0',
+  commitSha: '41efa88950c451555543c713b194fb8478491cba',
+  shortSha: '41efa88',
+  buildTimeUtc: '2026-11-08T18:35:00Z',
   branch: 'research/roadie-apk',
   repository: 'DeployForceUs/roadie-dashboard',
   pagesRepo: 'DeployForceUs/dispatch-view-26 [main]',
   siteUrl: 'https://deployforceus.github.io/dispatch-view-26/',
-  shaType: 'v1.8.0 filter-aware audio fix; Public Gateway preserved'
+  shaType: 'History V2 calendar-day observation grouping release'
 };
 
 
